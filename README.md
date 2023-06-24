@@ -1,5 +1,16 @@
 # Jinhong's Public Schedule
 
+Upcoming:
+
+|  Date |  Activity | Remark  |
+|---|---|---|
+| 27-06-2023  | speaking - Getting started with Kubernetes? | Kubernetes, security, open source  |
+| 25-10-2023  | speaking - [Journey to Secure Agility: How Saxo Bank Embraced DevSecOps in the Era of Containers and Kubernetes](https://www.thedevopsconference.com/copenhagen?_gl=1*an4wwh*_up*MQ..*_ga*MjIzOTk4MDA2LjE2ODc2MzkwNTg.*_ga_H7FVZKYH8C*MTY4NzYzOTA1Ny4xLjEuMTY4NzYzOTExOS4wLjAuMA..)  | Container/Kubernetes, developer experience, platform engineering  |
+| 14-11-2023  | hosting - [KCD Denmark](https://kcddenmark.dk/)  | Kubernetes, open source, community building  |
+
+
+Passed:
+
 | Date       | Activity                                                                                                                                                                                                                                        | Remark                                                                                        |
 |------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
 | 22-06-2023 | speaking - [Securing the Cloud: Navigating New Frontiers at a 30+ Years Old FinTech](https://www.eficode.com/events/devops-experience-group-in-denmark-4)                                                                                       | Cloud security, open source, container, Kubernetes                                            |
