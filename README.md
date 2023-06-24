@@ -5,6 +5,8 @@ Upcoming:
 |  Date |  Activity | Remark  |
 |---|---|---|
 | 27-06-2023  | speaking - Getting started with Kubernetes? | Kubernetes, security, open source  |
+| 22-08-2023 | hosting - TODO | Chaos engineering, GitOps |
+| 12-09-2023 | hosting - TODO | Kubernetes security |
 | 25-10-2023  | speaking - [Journey to Secure Agility: How Saxo Bank Embraced DevSecOps in the Era of Containers and Kubernetes](https://www.thedevopsconference.com/copenhagen?_gl=1*an4wwh*_up*MQ..*_ga*MjIzOTk4MDA2LjE2ODc2MzkwNTg.*_ga_H7FVZKYH8C*MTY4NzYzOTA1Ny4xLjEuMTY4NzYzOTExOS4wLjAuMA..)  | Container/Kubernetes, developer experience, platform engineering  |
 | 14-11-2023  | hosting - [KCD Denmark](https://kcddenmark.dk/)  | Kubernetes, open source, community building  |
 
@@ -25,4 +27,6 @@ Passed:
 | 27-03-2023 | hosting - [Scaling Kafka and Streamlining Dev with DDD, Team Topologies and Promise Theory](https://www.meetup.com/cloud-native-copenhagen/events/292017986/)                                                                                   | Kafka, Kubernetes, ways of working                                                            |
 | 28-02-2023 | hosting - [Secure and manage your Kubernetes platform like a pro](https://www.meetup.com/cloud-native-copenhagen/events/290854108/)                                                                                                             | Container security, developer experience, platform engineering, Backstage                     |
 | 08-02-2023 | hosting - [Next generation microservices?](https://www.meetup.com/cloud-native-copenhagen/events/291072443/)                                                                                                                                    | WebAssembly                                                                                   |
-| 25-01-2023 | hosting/speaking - [Celebrate New Year with platform stories from LEGO & VELUX](https://www.meetup.com/cloud-native-copenhagen/events/290698606/)                                                                                               | Kubernetes, platform engineering, GitOps                                                      |
+| 25-01-2023 | hosting/speaking - [Celebrate New Year with platform stories from LEGO & VELUX](https://community.cncf.io/events/details/cncf-copenhagen-presents-celebrate-new-year-with-platform-stories-from-lego-velux/purchased/e47a11bd5c4b4838bd6d3d7929d04fac)                                                                                               | Kubernetes, platform engineering, GitOps                                                      |
+| 20-01-2023| speaking - [Kafka and Secure Software Development Lifecycle](https://www.linkedin.com/posts/jbrejnholt_karpenter-kubernetes-security-activity-7023005459259256832-8TwG/?utm_source=share&utm_medium=member_desktop) at TV2 | Kafka, container, Kubernetes, security |
+| 24-11-2022 | speaking - [Open Source in the DevSecOps way](https://www.idc.com/eu/events/70134-idc-future-of-infrastructure-2022#category_10) | Open source security |
