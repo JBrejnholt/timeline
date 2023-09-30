@@ -4,17 +4,18 @@ Upcoming:
 
 |  Date |  Activity | Remark  |
 |---|---|---|
-| 25-09-2023 | hosting - [Unlocking the Future of Scalable Applications and Sustainable K8S Clusters!](https://www.meetup.com/cloud-native-copenhagen/events/295346311/) | Kubernetes security and scalability |
 | 12-10-2023 | speaking - Building DevSecOps: Crafting Secure and Seamless Developer Experiences | Security, CICD, OSS, DevEx |
 | 18-10-2023 | hosting - TBD | GitOps and scalability |
-| 25-10-2023  | speaking - [Journey to Secure Agility: How Saxo Bank Embraced DevSecOps in the Era of Containers and Kubernetes](https://www.thedevopsconference.com/copenhagen?_gl=1*an4wwh*_up*MQ..*_ga*MjIzOTk4MDA2LjE2ODc2MzkwNTg.*_ga_H7FVZKYH8C*MTY4NzYzOTA1Ny4xLjEuMTY4NzYzOTExOS4wLjAuMA..)  | Container/Kubernetes, developer experience, platform engineering  |
+| 23-10-2023  | speaking - [Journey to Secure Agility: How Saxo Bank Embraced DevSecOps in the Era of Containers and Kubernetes](https://www.thedevopsconference.com/stockholm)  | Container/Kubernetes, developer experience, platform engineering  |
+| 25-10-2023  | speaking - [Journey to Secure Agility: How Saxo Bank Embraced DevSecOps in the Era of Containers and Kubernetes](https://www.thedevopsconference.com/copenhagen)  | Container/Kubernetes, developer experience, platform engineering  |
 | 14-11-2023  | hosting - [KCD Denmark](https://kcddenmark.dk/)  | Kubernetes, open source, community building  |
-| 5-12-2023 | hosting - TBD | AI, DevOps, OpenTelemetry |
+| 5-12-2023 | hosting - TBD | AI, DevOps, OpenTelemetry, Clean Code |
 
 Passed:
 
 | Date       | Activity                                                                                                                                                                                                                                        | Remark                                                                                        |
 |------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| 25-09-2023 | hosting - [Unlocking the Future of Scalable Applications and Sustainable K8S Clusters!](https://www.meetup.com/cloud-native-copenhagen/events/295346311/) | Kubernetes security and scalability |
 | 22-08-2023 | hosting - [Explore Chaos Engineering and Disaster Recovery in style with GitOps](https://www.meetup.com/cloud-native-copenhagen/events/294624225/) | Chaos engineering, GitOps |
 | 27-06-2023  | speaking - Getting started with Kubernetes at Configit A/S | Kubernetes, security, open source  |
 | 22-06-2023 | speaking - [Securing the Cloud: Navigating New Frontiers at a 30+ Years Old FinTech](https://www.eficode.com/events/devops-experience-group-in-denmark-4)                                                                                       | Cloud security, open source, container, Kubernetes                                            |
