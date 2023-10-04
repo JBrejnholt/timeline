@@ -5,7 +5,7 @@ Upcoming:
 |  Date |  Activity | Remark  |
 |---|---|---|
 | 12-10-2023 | speaking - Building DevSecOps: Crafting Secure and Seamless Developer Experiences | Security, CICD, OSS, DevEx |
-| 18-10-2023 | hosting - TBD | GitOps and scalability |
+| 18-10-2023 | hosting - [Kubernetes Orchestration and Disaster Recovery Insights](https://www.meetup.com/cloud-native-copenhagen/events/296513541/) | GitOps and scalability |
 | 23-10-2023  | speaking - [Journey to Secure Agility: How Saxo Bank Embraced DevSecOps in the Era of Containers and Kubernetes](https://www.thedevopsconference.com/stockholm)  | Container/Kubernetes, developer experience, platform engineering  |
 | 25-10-2023  | speaking - [Journey to Secure Agility: How Saxo Bank Embraced DevSecOps in the Era of Containers and Kubernetes](https://www.thedevopsconference.com/copenhagen)  | Container/Kubernetes, developer experience, platform engineering  |
 | 14-11-2023  | hosting - [KCD Denmark](https://kcddenmark.dk/)  | Kubernetes, open source, community building  |
