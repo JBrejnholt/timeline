@@ -2,18 +2,18 @@
 
 Upcoming:
 
-|  Date |  Activity | Remark  |
+|  Date | Activity | Remark |
 |---|---|---|
-| 18-10-2023 | hosting - [Kubernetes Orchestration and Disaster Recovery Insights](https://www.meetup.com/cloud-native-copenhagen/events/296513541/) | GitOps and scalability |
 | 23-10-2023  | speaking - [Journey to Secure Agility: How Saxo Bank Embraced DevSecOps in the Era of Containers and Kubernetes](https://www.thedevopsconference.com/stockholm)  | Container/Kubernetes, developer experience, platform engineering  |
 | 25-10-2023  | speaking - [Journey to Secure Agility: How Saxo Bank Embraced DevSecOps in the Era of Containers and Kubernetes](https://www.thedevopsconference.com/copenhagen)  | Container/Kubernetes, developer experience, platform engineering  |
 | 14-11-2023  | hosting - [KCD Denmark](https://kcddenmark.dk/)  | Kubernetes, open source, community building  |
-| 5-12-2023 | hosting - TBD | AI, DevOps, OpenTelemetry, Clean Code |
+| 5-12-2023 | hosting - Banking Circle | AI, DevOps, OpenTelemetry, Clean Code |
 
 Passed:
 
-| Date       | Activity                                                                                                                                                                                                                                        | Remark                                                                                        |
-|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| Date | Activity | Remark |
+|---|---|---|
+| 18-10-2023 | hosting - [Kubernetes Orchestration and Disaster Recovery Insights](https://www.meetup.com/cloud-native-copenhagen/events/296513541/) | GitOps and scalability |
 | 12-10-2023 | speaking - Building DevSecOps: Crafting Secure and Seamless Developer Experiences at LEGO | Security, CICD, OSS, DevEx |
 | 25-09-2023 | hosting - [Unlocking the Future of Scalable Applications and Sustainable K8S Clusters!](https://www.meetup.com/cloud-native-copenhagen/events/295346311/) | Kubernetes security and scalability |
 | 22-08-2023 | hosting - [Explore Chaos Engineering and Disaster Recovery in style with GitOps](https://www.meetup.com/cloud-native-copenhagen/events/294624225/) | Chaos engineering, GitOps |
