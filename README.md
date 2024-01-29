@@ -4,12 +4,14 @@ Upcoming:
 
 |  Date | Activity | Remark |
 |---|---|---|
-|11-01-2024 | hosting - [Bridging Divides with Cilium Cluster Mesh and Containerized Routing](https://www.meetup.com/cloud-native-copenhagen/events/297996197/) | Kubernetes Networking, Security, Service Mesh |
+| 30-01-2024 | speaking - Safe at Scale: Microservices Development and Hosting in the Modern Era at Milestone System | Kubernetes, DevEx, GitOps, Secure Software Development Lifecycle Management |
+| 11-02-2024 | hosting - [Diving Deep into Cloud Native Challenges: Backstage, Carvel, and Beyond](https://www.meetup.com/cloud-native-copenhagen/events/298379906/) | Kubernetes, DevEx |
 
 Passed:
 
 | Date | Activity | Remark |
 |---|---|---|
+| 11-01-2024 | hosting - [Bridging Divides with Cilium Cluster Mesh and Containerized Routing](https://www.meetup.com/cloud-native-copenhagen/events/297996197/) | Kubernetes Networking, Security, Service Mesh |
 | 5-12-2023 | hosting - [GitOps Unleashed: Elevating Kubernetes Ops with .NET Operators and KubeAid](https://www.meetup.com/cloud-native-copenhagen/events/297264700/) | AI, DevOps, OpenTelemetry, Clean Code |
 | 14-11-2023  | hosting - [KCD Denmark](https://kcddenmark.dk/)  | Kubernetes, open source, community building  |
 | 25-10-2023  | speaking - [Journey to Secure Agility: How Saxo Bank Embraced DevSecOps in the Era of Containers and Kubernetes](https://www.thedevopsconference.com/copenhagen)  | Container/Kubernetes, developer experience, platform engineering  |
