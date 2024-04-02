@@ -5,14 +5,15 @@ Upcoming:
 |  Date | Activity | Remark |
 |---|---|---|
 | 30-05-2024 | speaking - Building Trust in Fintech: DevSecOps Strategies at Saxo Bank at DevTalks | DevSecOps, Kubernetes, GitOps |
-| 22-03-2024 | keynote panel - [Unity in Diversity: A Decade of Inclusive Growth in the Cloud Native Community](https://sched.co/1YhKV) | Community building, Diversity |
-| 20-03-2024 | panel - KubeCon + CloudNativeCon Europe 2024 End User Panel | Cloud Native, Kubernetes, Service Mesh, GitOps |
-| 19-03-2024 | panel - [The Platform Rock-Paper-Scissors: Build, Adopt, Buy](https://sched.co/1YFgB) | Platform Engineering |
+| 15-04-2024 | speaking - Open Source, Platform Engineering and Cloud Resilience, knowledge exchange with Novo Nordisk | OSS, DevSecOps, Kubernetes, GitOps, Public Cloud |
 
 Passed:
 
 | Date | Activity | Remark |
 |---|---|---|
+| 22-03-2024 | keynote panel - [Unity in Diversity: A Decade of Inclusive Growth in the Cloud Native Community](https://www.youtube.com/watch?v=vwZANXuYdRI&t=728s&ab_channel=CNCF%5BCloudNativeComputingFoundation%5D) | Community building, Diversity |
+| 20-03-2024 | panel - [KubeCon + CloudNativeCon Europe 2024 End User Panel](https://diginomica.com/kubecon-cloudnativecon-why-engineers-challenge-getting-everyone-speaking-same-language-ai) | Cloud Native adoption, AI, platform engineering |
+| 19-03-2024 | panel - [The Platform Rock-Paper-Scissors: Build, Adopt, Buy](https://www.youtube.com/watch?v=yX2ZlB-Y_ug&ab_channel=CNCF%5BCloudNativeComputingFoundation%5D) | Platform Engineering, DevEx |
 | 11-02-2024 | hosting - [Diving Deep into Cloud Native Challenges: Backstage, Carvel, and Beyond](https://www.meetup.com/cloud-native-copenhagen/events/298379906/) | Kubernetes, DevEx |
 | 30-01-2024 | speaking - Safe at Scale: Microservices Development and Hosting in the Modern Era at Milestone System | Kubernetes, DevEx, GitOps, Secure Software Development Lifecycle Management |
 | 11-01-2024 | hosting - [Bridging Divides with Cilium Cluster Mesh and Containerized Routing](https://www.meetup.com/cloud-native-copenhagen/events/297996197/) | Kubernetes Networking, Security, Service Mesh |
