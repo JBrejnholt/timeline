@@ -4,6 +4,8 @@ Upcoming:
 
 |  Date | Activity | Remark |
 |---|---|---|
+| 03-09-2024 | speaking - Building Trust in Fintech: DevSecOps Strategies at Saxo Bank at ContainerDays | DevSecOps, Kubernetes, GitOps |
+| 26-06-2024 | speaking - Unlocking Cloud Agility: Building Secure Cloud-Native Applications with Containerization | DevSecOps, Kubernetes, GitOps |
 | 30-05-2024 | speaking - Building Trust in Fintech: DevSecOps Strategies at Saxo Bank at DevTalks | DevSecOps, Kubernetes, GitOps |
 | 15-04-2024 | speaking - Open Source, Platform Engineering and Cloud Resilience, knowledge exchange with Novo Nordisk | OSS, DevSecOps, Kubernetes, GitOps, Public Cloud |
 
