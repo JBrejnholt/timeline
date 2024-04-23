@@ -5,7 +5,7 @@ Upcoming:
 |  Date | Activity | Remark |
 |---|---|---|
 | 03-09-2024 | speaking - Building Trust in Fintech: DevSecOps Strategies at Saxo Bank at ContainerDays | DevSecOps, Kubernetes, GitOps |
-| 30-05-2024 | speaking -[Building Trust in Fintech: DevSecOps Strategies at Saxo Bank at DevTalks](https://www.devtalks.ro/agenda/8-day-2#devops-stage) | DevSecOps, Kubernetes, GitOps |
+| 30-05-2024 | speaking - [Building Trust in Fintech: DevSecOps Strategies at Saxo Bank at DevTalks](https://www.devtalks.ro/agenda/8-day-2#devops-stage) | DevSecOps, Kubernetes, GitOps |
 
 Passed:
 
