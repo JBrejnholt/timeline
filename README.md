@@ -5,14 +5,13 @@ Upcoming:
 |  Date | Activity | Remark |
 |---|---|---|
 | 03-09-2024 | speaking - Building Trust in Fintech: DevSecOps Strategies at Saxo Bank at ContainerDays | DevSecOps, Kubernetes, GitOps |
-| 26-06-2024 | speaking - Unlocking Cloud Agility: Building Secure Cloud-Native Applications with Containerization | DevSecOps, Kubernetes, GitOps |
-| 30-05-2024 | speaking - Building Trust in Fintech: DevSecOps Strategies at Saxo Bank at DevTalks | DevSecOps, Kubernetes, GitOps |
-| 15-04-2024 | speaking - Open Source, Platform Engineering and Cloud Resilience, knowledge exchange with Novo Nordisk | OSS, DevSecOps, Kubernetes, GitOps, Public Cloud |
+| 30-05-2024 | speaking -[Building Trust in Fintech: DevSecOps Strategies at Saxo Bank at DevTalks](https://www.devtalks.ro/agenda/8-day-2#devops-stage) | DevSecOps, Kubernetes, GitOps |
 
 Passed:
 
 | Date | Activity | Remark |
 |---|---|---|
+| 15-04-2024 | speaking - Open Source, Platform Engineering and Cloud Resilience, knowledge exchange with Novo Nordisk | OSS, DevSecOps, Kubernetes, GitOps, Public Cloud |
 | 22-03-2024 | keynote panel - [Unity in Diversity: A Decade of Inclusive Growth in the Cloud Native Community](https://www.youtube.com/watch?v=vwZANXuYdRI&t=728s&ab_channel=CNCF%5BCloudNativeComputingFoundation%5D) | Community building, Diversity |
 | 20-03-2024 | panel - [KubeCon + CloudNativeCon Europe 2024 End User Panel](https://diginomica.com/kubecon-cloudnativecon-why-engineers-challenge-getting-everyone-speaking-same-language-ai) | Cloud Native adoption, AI, platform engineering |
 | 19-03-2024 | panel - [The Platform Rock-Paper-Scissors: Build, Adopt, Buy](https://www.youtube.com/watch?v=yX2ZlB-Y_ug&ab_channel=CNCF%5BCloudNativeComputingFoundation%5D) | Platform Engineering, DevEx |
