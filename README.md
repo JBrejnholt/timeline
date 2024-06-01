@@ -4,10 +4,10 @@
 
 |  Date | Activity | Remark |
 |---|---|---|
-| 03-09-2024 | speaking - Building Trust in Fintech: DevSecOps Strategies at Saxo Bank at ContainerDays | DevSecOps, Kubernetes, GitOps |
+| 03-09-2024 | speaking - [Building Trust in Fintech: DevSecOps Strategies at Saxo Bank at ContainerDays](https://www.containerdays.io/containerdays-conference-2024/agenda/) | DevSecOps, Kubernetes, GitOps |
 | 21-08-2024 | hosting - [Cloud Native Event with Data and Platform Engineering Topics](https://www.meetup.com/cloud-native-copenhagen/) | Platform Engineering, Kubernetes, GitOps, Cloud Native Data |
 
-## Passed
+##  Passed
 
 | Date | Activity | Remark |
 |---|---|---|
