@@ -4,6 +4,8 @@
 
 |  Date | Activity | Remark |
 |---|---|---|
+| 19-11-2023  | hosting - [KCD Denmark](https://kcddenmark.dk/)  | Kubernetes, Open Source, Community Building, Cloud Native |
+| 23-10-2024 | speaking - [Cloud, Composability and Beyond, Building the Bank of Tomorrow](https://moneylive-insights.com/events/nordic-banking/) | Cloud Computing, Banking Infrastructure, Cloud Native |
 | 03-09-2024 | speaking - [Building Trust in Fintech: DevSecOps Strategies at Saxo Bank at ContainerDays](https://www.containerdays.io/containerdays-conference-2024/agenda/) | DevSecOps, Kubernetes, GitOps |
 | 21-08-2024 | hosting - [Cloud Native Event with Data and Platform Engineering Topics](https://www.meetup.com/cloud-native-copenhagen/) | Platform Engineering, Kubernetes, GitOps, Cloud Native Data |
 
