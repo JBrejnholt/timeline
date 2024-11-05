@@ -4,15 +4,19 @@
 
 |  Date | Activity | Remark |
 |---|---|---|
+| 15-11-2023  | speaking - [KubeCon NA - Platform Engineering in Financial Institutions: The Practitioner Panel](https://sched.co/1i7rP)| Kubernetes, Platform Engineering, Open Source, Cloud Native |
 | 19-11-2023  | hosting - [KCD Denmark](https://kcddenmark.dk/)  | Kubernetes, Open Source, Community Building, Cloud Native |
-| 23-10-2024 | speaking - [Cloud, Composability and Beyond, Building the Bank of Tomorrow](https://moneylive-insights.com/events/nordic-banking/) | Cloud Computing, Banking Infrastructure, Cloud Native |
-| 03-09-2024 | speaking - [Building Trust in Fintech: DevSecOps Strategies at Saxo Bank at ContainerDays](https://www.containerdays.io/containerdays-conference-2024/agenda/) | DevSecOps, Kubernetes, GitOps |
-| 21-08-2024 | hosting - [Cloud Native Event with Data and Platform Engineering Topics](https://www.meetup.com/cloud-native-copenhagen/) | Platform Engineering, Kubernetes, GitOps, Cloud Native Data |
+
 
 ##  Passed
 
 | Date | Activity | Remark |
 |---|---|---|
+| 31-10-2024 | hosting - [Solving ML and Multi-Cloud Scheduling: Adopting Ray & Project Ultron](https://community.cncf.io/events/details/cncf-cloud-native-copenhagen-presents-solving-ml-and-multi-cloud-scheduling-adopting-ray-amp-project-ultron/) | AI, Multi Cloud, Kubernetes, FinOps, Ray |
+| 23-10-2024 | speaking - [Cloud, Composability and Beyond, Building the Bank of Tomorrow](https://moneylive-insights.com/events/nordic-banking/) | Cloud Computing, Banking Infrastructure, Cloud Native |
+| 18-09-2024 | hosting - [Scaling ML and Dashboard Innovation: Ray on Kubernetes & Grafana with Jsonnet](https://community.cncf.io/events/details/cncf-copenhagen-presents-scaling-ml-and-dashboard-innovation-ray-on-kubernetes-amp-grafana-with-jsonnet/) | AI, Ray, Kubernetes, Monitoring |
+| 03-09-2024 | speaking - [Building Trust in Fintech: DevSecOps Strategies at Saxo Bank at ContainerDays](https://www.youtube.com/watch?v=4L1KoWYkaSo&t=970s) | DevSecOps, Kubernetes, GitOps |
+| 21-08-2024 | hosting - [Future of Scalable Tech: AI, Green Compute, and the Quest for Efficiency](https://community.cncf.io/events/details/cncf-copenhagen-presents-future-of-scalable-tech-ai-green-compute-and-the-quest-for-efficiency/) | AI, Platform Engineering, Kubernetes, GitOps, Cloud Native Data |
 | 30-05-2024 | speaking - [Building Trust in Fintech: DevSecOps Strategies at Saxo Bank at DevTalks](https://www.devtalks.ro/agenda/8-day-2#devops-stage) | DevSecOps, Kubernetes, GitOps |
 | 21-05-2024 | hosting - [Cloud Native Innovations: Securing LLMs and Streamlining Platforms](https://www.meetup.com/cloud-native-copenhagen/events/300518582/) | HashiCorp Vault, Kubernetes Security, Platform Engineering |
 | 15-04-2024 | speaking - Open Source, Platform Engineering and Cloud Resilience, knowledge exchange with Novo Nordisk | OSS, DevSecOps, Kubernetes, GitOps, Public Cloud |
