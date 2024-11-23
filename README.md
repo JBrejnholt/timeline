@@ -4,14 +4,14 @@
 
 |  Date | Activity | Remark |
 |---|---|---|
-| 15-11-2023  | speaking - [KubeCon NA - Platform Engineering in Financial Institutions: The Practitioner Panel](https://sched.co/1i7rP)| Kubernetes, Platform Engineering, Open Source, Cloud Native |
-| 19-11-2023  | hosting - [KCD Denmark](https://kcddenmark.dk/)  | Kubernetes, Open Source, Community Building, Cloud Native |
-
+| 12-06-2025  | speaking - [Cloud Native Zurich - Topic TBD](https://cloudnativezurich.ch/)| Kubernetes, Platform Engineering, Open Source, Cloud Native |
 
 ##  Passed
 
 | Date | Activity | Remark |
 |---|---|---|
+| 19-11-2024  | hosting - [KCD Denmark](https://kcddenmark.dk/)  | Kubernetes, Open Source, Community Building, Cloud Native - we donated 350000 dkk to [Coding Pirates](https://codingpirates.dk/)  |
+| 15-11-2024  | speaking - [KubeCon NA - Platform Engineering in Financial Institutions: The Practitioner Panel](https://sched.co/1i7rP)| Kubernetes, Platform Engineering, Open Source, Cloud Native |
 | 31-10-2024 | hosting - [Solving ML and Multi-Cloud Scheduling: Adopting Ray & Project Ultron](https://community.cncf.io/events/details/cncf-cloud-native-copenhagen-presents-solving-ml-and-multi-cloud-scheduling-adopting-ray-amp-project-ultron/) | AI, Multi Cloud, Kubernetes, FinOps, Ray |
 | 23-10-2024 | speaking - [Cloud, Composability and Beyond, Building the Bank of Tomorrow](https://moneylive-insights.com/events/nordic-banking/) | Cloud Computing, Banking Infrastructure, Cloud Native |
 | 18-09-2024 | hosting - [Scaling ML and Dashboard Innovation: Ray on Kubernetes & Grafana with Jsonnet](https://community.cncf.io/events/details/cncf-copenhagen-presents-scaling-ml-and-dashboard-innovation-ray-on-kubernetes-amp-grafana-with-jsonnet/) | AI, Ray, Kubernetes, Monitoring |
