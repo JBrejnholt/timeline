@@ -4,13 +4,14 @@
 
 |  Date | Activity | Remark |
 |---|---|---|
-| 09-09-2025 | speaking - [ContainerDays - Saxo Service Blueprint: Bridging Old and New World with Kubernetes Operators](https://www.containerdays.io/containerdays-conference-2025/agenda/) | Kubernetes, Operator, Cloud Native, Platform Engineering |
-| 17-09-2025 | speaking - [Computerworld Cloud & AI Festival - You Will Be Hacked: Build to Recover, Not Just to Prevent](https://cloud-festival.dk/) | Kubernetes, Operator, DR, Cloud Native, Platform Engineering |
-| 7-10-2023  | hosting - [Cloud Native Denmark](https://cloudnativedenmark.dk/)  | Kubernetes, open source, cloud native, community building - our profit will be donate to [Coding Pirates](https://codingpirates.dk/)  |
+| 25-03-2026  | speaking - [KubeCon - Saxo Service Blueprint: Bridging Legacy and Modern World With Kubernetes Operators](https://sched.co/2CW4E)  | Kubernetes, Operator, Cloud Native, Platform Engineerin |
 ##  Passed
 
 | Date | Activity | Remark |
 |---|---|---|
+| 7-10-2025  | hosting - [Cloud Native Denmark](https://cloudnativedenmark.dk/)  | Kubernetes, open source, cloud native, community building - our profit will be donate to [Coding Pirates](https://codingpirates.dk/)  |
+| 17-09-2025 | speaking - [Computerworld Cloud & AI Festival - You Will Be Hacked: Build to Recover, Not Just to Prevent](https://cloud-festival.dk/) | Kubernetes, Operator, DR, Cloud Native, Platform Engineering |
+| 09-09-2025 | speaking - [ContainerDays - Saxo Service Blueprint: Bridging Old and New World with Kubernetes Operators](https://www.youtube.com/watch?v=o_0pzE9jeek) | Kubernetes, Operator, Cloud Native, Platform Engineering |
 | 12-06-2025  | speaking - [Cloud Native Zurich - From Cloud First to Cloud Native First: Building a Sustainable Trading Platform](https://cloudnativezurich.ch/)| Kubernetes, Platform Engineering, Open Source, Cloud Native, FinOps |
 | 01-04-2025  | speaking - [Platform Engineering Day Europe - Panel: Platform Engineering in Financial Institutions: The Practitioner Panel](https://www.youtube.com/watch?v=KTzQTuGgBeg&ab_channel=CNCF%5BCloudNativeComputingFoundation%5D) | Kubernetes, Platform Engineering, Open Source, Cloud Native  |
 | 19-11-2024  | hosting - [KCD Denmark](https://kcddenmark.dk/)  | Kubernetes, Open Source, Community Building, Cloud Native - we donated 350000 dkk to [Coding Pirates](https://codingpirates.dk/)  |
