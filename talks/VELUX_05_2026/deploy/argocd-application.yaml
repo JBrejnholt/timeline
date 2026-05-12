@@ -1,0 +1,33 @@
+# Argo Application — the demo deployed the way you actually deploy things.
+# Point it at this repo's path; Argo handles the rest. Changing the schema
+# card (deploy/base/schema-configmap.yaml) is a PR, not a kubectl edit —
+# the governance surface lives in git.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: velux-nl-query-demo
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/timeline.git
+    targetRevision: talks/velux-may-2026
+    path: talks/VELUX_05_2026/deploy/base
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nl-query-demo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

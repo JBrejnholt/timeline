@@ -293,14 +293,23 @@ MACHINES = {
 }
 
 
-def make_plan(question: str, client: LLMClient) -> dict:
+def make_plan(
+    question: str,
+    client: LLMClient,
+    *,
+    schema_card: str | None = None,
+) -> dict:
     """Stage 1: NL question -> validated JSON plan.
 
     Tries the LLM first. If parsing or validation fails, falls back to the
     mock client's plan for the same question and prints a one-line note.
+
+    `schema_card` lets a caller (e.g. the HTTP service) inject the card
+    from a mounted ConfigMap rather than relying on the module constant.
     """
+    sc = schema_card or SCHEMA_CARD
     try:
-        raw = client.complete(SCHEMA_CARD, question)
+        raw = client.complete(sc, question)
         plan = _parse_json(raw)
         _validate_plan(plan)
         return plan
@@ -310,7 +319,7 @@ def make_plan(question: str, client: LLMClient) -> dict:
         print(f"[plan] {client.name} returned unusable output ({exc}); "
               f"falling back to mock plan")
         fallback = default_mock_client()
-        raw = fallback.complete(SCHEMA_CARD, question)
+        raw = fallback.complete(sc, question)
         plan = _parse_json(raw)
         _validate_plan(plan)
         return plan

@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: nl-query-demo
+
+commonLabels:
+  app.kubernetes.io/part-of: velux-iiot-ai
+  app.kubernetes.io/managed-by: argocd
+
+resources:
+  - schema-configmap.yaml
+  - nl-query-deployment.yaml
+  - nl-query-service.yaml
+  - ollama-deployment.yaml
+  - ollama-service.yaml
+
+# Pin image tag here so promotions go through git, not kubectl.
+images:
+  - name: velux-nl-query
+    newName: ghcr.io/your-org/velux-nl-query
+    newTag: "0.1.0"

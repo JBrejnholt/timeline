@@ -1,0 +1,59 @@
+# Ollama as a colocated inference deployment. In a more grown-up setup this
+# is a shared cluster-level service (one inference plane, many tenants),
+# behind an internal API gateway with quota and observability — same shape
+# as you'd run any other shared platform component.
+#
+# Two practical notes for production:
+#   1. Models are large. Bake them into a model-cache image, or pre-populate
+#      a PVC via an init job, instead of pulling on first start.
+#   2. CPU-only inference at 3B is fine for ~1 QPS demo traffic. For real
+#      load: GPU nodeSelector + a node pool with the right taints.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+  labels:
+    app.kubernetes.io/name: ollama
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ollama
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ollama
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: ollama
+          image: ollama/ollama:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 11434
+          env:
+            - name: OLLAMA_HOST
+              value: 0.0.0.0:11434
+            - name: OLLAMA_KEEP_ALIVE
+              value: 60m
+          volumeMounts:
+            - name: models
+              mountPath: /root/.ollama
+          readinessProbe:
+            httpGet: { path: /api/tags, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests: { cpu: "1",   memory: 4Gi }
+            limits:   { cpu: "4",   memory: 8Gi }
+      volumes:
+        # Demo-grade. In production: a PVC pre-populated with the model
+        # files (an init job that runs `ollama pull qwen2.5:3b` once and
+        # exits), so pods come up fast and survive rescheduling.
+        - name: models
+          emptyDir:
+            sizeLimit: 10Gi

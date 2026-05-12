@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nl-query
+  labels:
+    app.kubernetes.io/name: nl-query
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nl-query
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nl-query
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: nl-query
+          image: velux-nl-query  # rewritten by kustomize images:
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: OLLAMA_HOST
+              value: http://ollama:11434
+            - name: MODEL
+              value: qwen2.5:3b
+            - name: SCHEMA_CARD_PATH
+              value: /etc/nl-query/schema_card.txt
+            - name: DATA_PATH
+              value: /data/measurements.parquet
+            - name: EVENTS_PATH
+              value: /data/events.parquet
+          volumeMounts:
+            - name: schema
+              mountPath: /etc/nl-query
+              readOnly: true
+          readinessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits:   { cpu: 500m, memory: 1Gi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+      volumes:
+        - name: schema
+          configMap:
+            name: nl-query-schema
+            items:
+              - key: schema_card.txt
+                path: schema_card.txt
