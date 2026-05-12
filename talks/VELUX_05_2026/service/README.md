@@ -53,10 +53,11 @@ curl -s -X POST localhost:8000/ask \
      -d '{"question":"Show me machines on line 2 that drifted last week"}' | jq
 ```
 
-## Deploy via Argo
+## Deploy to a cluster
 
-See [`../deploy/`](../deploy/). One `Application` manifest, a kustomize base
-with five resources, schema card in a ConfigMap.
+See [`../deploy/`](../deploy/). Kustomize base with five resources, schema
+card in a ConfigMap. `kubectl apply -k talks/VELUX_05_2026/deploy/base`
+from any cluster you can reach.
 
 ## Production seams
 

@@ -5,7 +5,6 @@ namespace: nl-query-demo
 
 commonLabels:
   app.kubernetes.io/part-of: velux-iiot-ai
-  app.kubernetes.io/managed-by: argocd
 
 resources:
   - schema-configmap.yaml

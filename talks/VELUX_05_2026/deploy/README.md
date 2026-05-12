@@ -1,7 +1,8 @@
 # `deploy/` — the demo, deployed the way you actually deploy things
 
 This is the closing-slide material. The notebook proves the pattern. This
-proves the pattern fits on the substrate you already run.
+proves the pattern fits on the substrate you already run: a kustomize base
+that any Kubernetes cluster can apply.
 
 ## Topology
 
@@ -34,7 +35,6 @@ proves the pattern fits on the substrate you already run.
 ```
 deploy/
 ├── README.md                        # this file
-├── argocd-application.yaml          # the Argo Application — point at base/
 └── base/
     ├── kustomization.yaml
     ├── schema-configmap.yaml        # the schema card, in git
@@ -45,17 +45,18 @@ deploy/
     └── ollama-service.yaml          # ClusterIP, port 11434
 ```
 
-## Apply (development cluster)
+## Apply
 
 ```bash
-# Render to confirm what Argo would produce.
-kustomize build talks/VELUX_05_2026/deploy/base
+# Render to see what will be applied.
+kubectl kustomize talks/VELUX_05_2026/deploy/base
 
-# Or apply directly without Argo, for a quick local test:
+# Apply.
 kubectl create namespace nl-query-demo
-kustomize build talks/VELUX_05_2026/deploy/base | kubectl -n nl-query-demo apply -f -
+kubectl apply -k talks/VELUX_05_2026/deploy/base
 
-# Pull the model once the ollama pod is up.
+# Pull the model once the ollama pod is up (~30s).
+kubectl -n nl-query-demo rollout status deploy/ollama
 kubectl -n nl-query-demo exec deploy/ollama -- ollama pull qwen2.5:3b
 
 # Verify.
@@ -66,35 +67,29 @@ curl -s -X POST localhost:8000/ask \
      -d '{"question":"Show me machines on line 2 that drifted last week"}' | jq
 ```
 
-## Apply via Argo
-
-```bash
-# Update repoURL/targetRevision in argocd-application.yaml first.
-kubectl -n argocd apply -f talks/VELUX_05_2026/deploy/argocd-application.yaml
-argocd app sync velux-nl-query-demo
-```
-
 ## What this is — and isn't
 
 It **is** the deployment shape the talk's last slide should land on:
 
-- One Argo Application, kustomize base, ConfigMap-driven schema card
+- One `kubectl apply -k` away from a running service
 - Non-root container, readOnlyRootFilesystem, dropped capabilities, probes,
   resource requests and limits
-- A separate inference deployment so the AI plane scales (and is governed)
+- ConfigMap-driven schema card — change governance by editing a file in git
+- Separate inference deployment so the AI plane scales (and is governed)
   independently of the query plane
 
 It **is not** production-ready. The seams worth honest answers about:
 
-| What's demo-grade here              | What real looks like                              |
-|-------------------------------------|---------------------------------------------------|
+| What's demo-grade here              | What real looks like                                  |
+|-------------------------------------|-------------------------------------------------------|
 | Parquet baked into the image        | Kafka consumer → query store (Iceberg, ClickHouse, …) |
-| Ollama in-cluster, `emptyDir` model | Shared inference plane, model PVC, GPU node pool  |
-| Single replica, no HPA              | HPA + PodDisruptionBudget                         |
+| Ollama in-cluster, `emptyDir` model | Shared inference plane, model PVC, GPU node pool      |
+| Single replica, no HPA              | HPA + PodDisruptionBudget                             |
 | `default` ServiceAccount disabled   | Workload identity (Workload Identity Federation / IRSA / Azure AD WI) |
-| No NetworkPolicy                    | Egress-default-deny, allow only `ollama`          |
-| No mTLS / no AuthN                  | Mesh or gateway in front; AuthN at the edge       |
-| `latest` Ollama image               | Pinned digest, scanned                            |
+| No NetworkPolicy                    | Egress-default-deny, allow only `ollama`              |
+| No mTLS / no AuthN                  | Mesh or gateway in front; AuthN at the edge           |
+| `latest` Ollama image               | Pinned digest, scanned                                |
+| `kubectl apply -k` from a laptop    | GitOps — Argo, Flux, whatever you already run         |
 
 None of these are research problems for the room — they're applied
 platform engineering they already do for every other workload. The point
