@@ -36,7 +36,7 @@ from typing import Any
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi.responses import PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from matplotlib.figure import Figure
 from pydantic import BaseModel
@@ -148,9 +148,33 @@ def healthz() -> dict[str, Any]:
 
 
 @app.get("/schema")
-def schema() -> dict[str, str]:
-    """Return the schema card. This is the governance surface."""
-    return {"schema_card": state.schema_card}
+def schema() -> PlainTextResponse:
+    """Return the schema card as plain text — the governance surface.
+
+    Plain text so a browser hitting /schema sees a readable document,
+    not a JSON-escaped string with literal \\n everywhere.
+    """
+    return PlainTextResponse(state.schema_card, media_type="text/plain; charset=utf-8")
+
+
+@app.get("/meta")
+def meta() -> dict[str, Any]:
+    """What dataset is loaded? Used by the UI to render its context strip."""
+    if state.measurements is None or state.measurements.empty:
+        raise HTTPException(status_code=503, detail="data not loaded")
+    m = state.measurements
+    lines: dict[str, list[str]] = {}
+    for line, grp in m.groupby("line_id"):
+        lines[str(line)] = sorted(grp.machine_id.unique().tolist())
+    return {
+        "factory": sorted(m.factory_id.unique().tolist())[0],
+        "window_start": str(m.timestamp.min()),
+        "window_end": str(m.timestamp.max()),
+        "n_measurements": int(len(m)),
+        "n_events": int(len(state.events)) if state.events is not None else 0,
+        "lines": dict(sorted(lines.items())),
+        "signals": sorted(m.signal.unique().tolist()),
+    }
 
 
 @app.post("/plan")

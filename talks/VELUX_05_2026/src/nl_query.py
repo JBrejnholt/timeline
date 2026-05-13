@@ -101,10 +101,17 @@ You will receive a JSON payload with:
                to the whole line)
   - events   : alarms, MES messages and operator notes in the same window
 
-Write 2-4 sentences. Cite each machine by name when quoting numbers. Do
-NOT invent any number that is not in the stats. Do NOT compute or combine
-numbers — only repeat what is in the stats. If stats are empty or n_rows
-is 0, say plainly that the window had no data. Tone: concise, calm, Nordic.
+Write 2-4 sentences.
+
+If the question is about a LINE (line_1 / line_2 / line_3), START with a
+line-level statement (e.g. "Line line_2: 1 of 2 machines drifted >20%"),
+THEN cite the specific machines and their numbers. Do not jump straight
+to one machine when the question asked about a line.
+
+Cite each machine by name when quoting numbers. Do NOT invent any number
+that is not in the stats. Do NOT compute or combine numbers — only repeat
+what is in the stats. If stats are empty or n_rows is 0, say plainly that
+the window had no data. Tone: concise, calm, Nordic.
 """
 
 
@@ -404,11 +411,19 @@ def execute_plan(plan: dict, measurements: pd.DataFrame) -> tuple[pd.DataFrame, 
                 "delta_pct": round(pct, 1),
             })
         stats["per_machine"] = rows
-        stats["drifted_more_than_20pct"] = [
-            r["machine_id"] for r in rows if abs(r["delta_pct"]) > 20
-        ]
+        drifted = [r["machine_id"] for r in rows if abs(r["delta_pct"]) > 20]
+        stats["drifted_more_than_20pct"] = drifted
         stats["baseline_start"] = b_start.isoformat()
         stats["baseline_end"] = b_end.isoformat()
+        # Deterministic one-line summary the UI shows above the LLM
+        # annotation. This guarantees the line-level answer is present
+        # regardless of how the LLM phrases the prose.
+        scope = plan.get("line_id") or "all lines"
+        stats["summary"] = (
+            f"{scope}: {len(drifted)} of {len(rows)} machine"
+            f"{'s' if len(rows) != 1 else ''} drifted >20% on "
+            f"{plan['signal']}."
+        )
 
     elif plan["intent"] == "anomaly":
         rows = []

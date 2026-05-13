@@ -14,6 +14,12 @@
       --accent: #c41e3a;
       --accent-soft: #fbe9ec;
       --code-bg: #f3f4f6;
+      --pipe-llm: #fff7ed;
+      --pipe-llm-border: #fdba74;
+      --pipe-det: #ecfeff;
+      --pipe-det-border: #67e8f9;
+      --pipe-src: #f5f3ff;
+      --pipe-src-border: #c4b5fd;
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
@@ -26,7 +32,7 @@
       font-size: 16px;
       line-height: 1.5;
     }
-    header { margin-bottom: 24px; max-width: 1100px; }
+    header { margin-bottom: 20px; max-width: 1100px; }
     h1 {
       font-size: 26px;
       font-weight: 600;
@@ -36,6 +42,7 @@
       gap: 12px;
     }
     .subtitle { color: var(--muted); font-size: 14px; max-width: 720px; }
+    .subtitle a { color: var(--accent); }
     .ribbon {
       background: var(--accent-soft);
       color: var(--accent);
@@ -46,6 +53,35 @@
       font-weight: 500;
     }
     main { max-width: 1100px; }
+
+    /* Compact context strip — always visible */
+    .context-strip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      font-size: 13px;
+    }
+    .context-strip .label {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .context-strip code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
     .ask { display: flex; gap: 12px; margin-bottom: 12px; }
     .ask input {
       flex: 1;
@@ -86,6 +122,7 @@
       color: var(--accent);
       border-color: var(--accent);
     }
+
     .response {
       background: var(--card);
       border: 1px solid var(--border);
@@ -94,6 +131,18 @@
       transition: opacity 0.15s ease;
     }
     .response.loading { opacity: 0.35; }
+
+    /* Summary banner — the deterministic one-liner above the LLM text */
+    .summary {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      color: var(--fg);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 14px;
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin: 0 0 20px;
+    }
     .annotation {
       font-size: 19px;
       line-height: 1.55;
@@ -140,14 +189,106 @@
       line-height: 1.5;
     }
     .empty { color: var(--muted); font-style: italic; }
+
+    /* Placeholder card with the pipeline diagram */
     .placeholder {
       background: var(--card);
-      border: 1px dashed var(--border);
+      border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 40px;
+      padding: 32px 32px 28px;
+    }
+    .placeholder h2 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 600;
+      margin: 0 0 16px;
+    }
+    .placeholder .hint {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 16px 0 0;
+    }
+
+    /* Pipeline diagram — pure CSS, no SVG */
+    .pipeline {
+      display: grid;
+      grid-template-columns: auto 1fr 1fr 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin: 0;
+    }
+    .pipeline .node {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 12px;
+      text-align: center;
+      background: var(--card);
+      font-size: 13px;
+    }
+    .pipeline .node .role {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .pipeline .node.you { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; min-width: 80px; }
+    .pipeline .node.llm { background: var(--pipe-llm); border-color: var(--pipe-llm-border); }
+    .pipeline .node.det { background: var(--pipe-det); border-color: var(--pipe-det-border); }
+    .pipeline .arrow {
       text-align: center;
       color: var(--muted);
+      font-size: 20px;
+      line-height: 1;
     }
+    .pipeline-row2 {
+      display: grid;
+      grid-template-columns: auto 1fr 1fr 1fr auto;
+      gap: 12px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .pipeline-row2 .src {
+      background: var(--pipe-src);
+      border: 1px dashed var(--pipe-src-border);
+      border-radius: 6px;
+      padding: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+    }
+    .pipeline-row2 .empty-cell { /* spacer */ }
+
+    .lines-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 16px 0 0;
+    }
+    .lines-grid .line {
+      background: var(--code-bg);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+    .lines-grid .line strong {
+      display: block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .lines-grid .line .machines {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+    }
+
     .spinner {
       display: inline-block;
       width: 14px; height: 14px;
@@ -167,11 +308,15 @@
     <div class="subtitle">
       Natural-language interface to the IIoT topic. Same Kafka topic, same
       schema card in a ConfigMap, same three-stage pipeline as the notebook.
-      <a href="/schema" target="_blank" style="color: var(--accent);">View schema card →</a>
+      <a href="/schema" target="_blank">View schema card →</a>
     </div>
   </header>
 
   <main>
+    <div class="context-strip" id="contextStrip">
+      <div><span class="label">Loading…</span></div>
+    </div>
+
     <form class="ask" id="askForm">
       <input id="question"
              type="text"
@@ -188,10 +333,39 @@
     </div>
 
     <section class="placeholder" id="placeholder">
-      Pick a question above or type your own.
+      <h2>How the demo works</h2>
+      <div class="pipeline">
+        <div class="node you">You</div>
+        <div class="node llm">1. PLAN<span class="role">LLM</span></div>
+        <div class="node det">2. EXECUTE<span class="role">pandas</span></div>
+        <div class="node llm">3. ANNOTATE<span class="role">LLM</span></div>
+        <div class="node you">You</div>
+      </div>
+      <div class="pipeline pipeline-row2">
+        <div class="arrow">↓</div>
+        <div class="arrow">↑</div>
+        <div class="arrow">↑</div>
+        <div class="arrow">↑</div>
+        <div class="empty-cell"></div>
+      </div>
+      <div class="pipeline pipeline-row2">
+        <div class="empty-cell"></div>
+        <div class="src">schema card<br><span style="opacity:0.7">(ConfigMap)</span></div>
+        <div class="src">measurements<br><span style="opacity:0.7">(parquet today,<br>Kafka tomorrow)</span></div>
+        <div class="src">events log<br><span style="opacity:0.7">(alarms +<br>operator notes)</span></div>
+        <div class="empty-cell"></div>
+      </div>
+      <p class="hint">
+        The LLM only translates words ↔ structured data. The execution
+        stage is deterministic pandas. No free-form SQL, no inventing
+        numbers — the schema card constrains what can be asked.
+      </p>
+      <h2 style="margin-top: 28px">Available data</h2>
+      <div class="lines-grid" id="linesGrid"></div>
     </section>
 
     <section class="response" id="response" hidden>
+      <div class="summary" id="summary" hidden></div>
       <p class="annotation" id="annotation"></p>
       <div class="chart"><img id="chart" alt="" /></div>
       <div class="grid">
@@ -216,10 +390,31 @@
     const responseEl = $('response');
     const placeholder = $('placeholder');
 
-    // Surface which client (and model, if Ollama) is active.
+    // Active LLM client ribbon
     fetch('/healthz').then(r => r.json()).then(d => {
       ribbon.textContent = d.model ? `${d.client} · ${d.model}` : d.client || 'unknown';
     }).catch(() => { ribbon.textContent = 'offline'; });
+
+    // Context strip and lines grid from /meta
+    fetch('/meta').then(r => r.json()).then(meta => {
+      const w = (ts) => (ts || '').slice(0, 16).replace('T', ' ');
+      const strip = $('contextStrip');
+      strip.innerHTML = `
+        <div><span class="label">Topic</span><code>${esc(meta.factory)}</code></div>
+        <div><span class="label">Window</span>${esc(w(meta.window_start))} → ${esc(w(meta.window_end))} UTC</div>
+        <div><span class="label">Rows</span>${meta.n_measurements.toLocaleString()} measurements · ${meta.n_events} events</div>
+        <div><span class="label">Signals</span>${meta.signals.map(s => `<code>${esc(s)}</code>`).join(' ')}</div>
+      `;
+      const grid = $('linesGrid');
+      grid.innerHTML = Object.entries(meta.lines).map(([line, machines]) => `
+        <div class="line">
+          <strong>${esc(line)}</strong>
+          <div class="machines">${machines.map(esc).join(', ')}</div>
+        </div>
+      `).join('');
+    }).catch(() => {
+      $('contextStrip').innerHTML = '<div><span class="label">Meta unavailable</span></div>';
+    });
 
     document.querySelectorAll('.chip').forEach(c => {
       c.addEventListener('click', () => {
@@ -255,6 +450,7 @@
         $('chart').removeAttribute('src');
         $('plan').textContent = '';
         $('events').innerHTML = '';
+        $('summary').hidden = true;
       } finally {
         responseEl.classList.remove('loading');
         btn.disabled = false;
@@ -263,6 +459,14 @@
     });
 
     function renderResponse(data) {
+      const summary = data.stats && data.stats.summary;
+      const sumEl = $('summary');
+      if (summary) {
+        sumEl.textContent = summary;
+        sumEl.hidden = false;
+      } else {
+        sumEl.hidden = true;
+      }
       $('annotation').textContent = data.annotation || '';
       if (data.chart_png) {
         $('chart').src = 'data:image/png;base64,' + data.chart_png;
