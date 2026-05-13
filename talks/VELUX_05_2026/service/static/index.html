@@ -284,6 +284,131 @@
     }
     .empty { color: var(--muted); font-style: italic; }
 
+    /* Tab nav — toggles the Demo / Deployment views */
+    .tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      user-select: none;
+      margin-bottom: -1px;
+      font-weight: 500;
+    }
+    .tab:hover { color: var(--fg); background: var(--card); }
+    .tab.active {
+      background: var(--card);
+      border-color: var(--border);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Deployment topology — K8s objects with colour by kind */
+    .topology {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+    }
+    .topo-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin: 6px 0;
+      flex-wrap: wrap;
+    }
+    .k8s-node {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      background: var(--card);
+      min-width: 260px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .k8s-node .kind {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    .k8s-node .name {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 14px;
+      margin: 4px 0 2px;
+      font-weight: 600;
+    }
+    .k8s-node .meta {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .k8s-node.client { background: var(--accent-soft); border-color: var(--accent); }
+    .k8s-node.client .kind { color: var(--accent); }
+    .k8s-node.client .name { color: var(--accent); }
+    .k8s-node.svc     { background: #ecfdf5; border-color: #6ee7b7; }
+    .k8s-node.svc .kind { color: #047857; }
+    .k8s-node.pod     { background: #eff6ff; border-color: #93c5fd; }
+    .k8s-node.pod .kind { color: #1e40af; }
+    .k8s-node.cm      { background: #f5f3ff; border-color: #c4b5fd; }
+    .k8s-node.cm .kind { color: #6d28d9; }
+    .k8s-node.data    { background: #fffaf0; border-color: #fcd34d; }
+    .k8s-node.data .kind { color: #92400e; }
+    .topo-arrow {
+      color: var(--muted);
+      font-size: 18px;
+      text-align: center;
+      margin: 2px 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .topo-arrow .label {
+      display: inline-block;
+      margin-left: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      font-family: inherit;
+    }
+    .topo-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Demo-vs-production table on the deploy tab */
+    .prod-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    .prod-table th, .prod-table td {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .prod-table th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .prod-table td:first-child { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--muted); }
+
     /* Placeholder card with the pipeline diagram */
     .placeholder {
       background: var(--card);
@@ -381,6 +506,12 @@
   </header>
 
   <main>
+    <nav class="tabs" role="tablist">
+      <div class="tab active" data-tab="demo" role="tab">Demo</div>
+      <div class="tab" data-tab="deploy" role="tab">Deployment</div>
+    </nav>
+
+    <div id="tab-demo" class="tab-panel active">
     <div class="context-strip" id="contextStrip">
       <div><span class="label">Loading…</span></div>
     </div>
@@ -520,12 +651,127 @@
         </div>
       </div>
     </section>
+    </div><!-- /tab-demo -->
+
+    <div id="tab-deploy" class="tab-panel">
+      <section class="topology" aria-label="Deployment topology">
+        <h2 class="floor-title">Deployment topology — what runs in the cluster</h2>
+
+        <div class="topo-row">
+          <div class="k8s-node client">
+            <div class="kind">Client</div>
+            <div class="name">browser · curl · CLI</div>
+            <div class="meta">in the demo: this same browser tab</div>
+          </div>
+        </div>
+        <div class="topo-arrow">↓<span class="label">HTTP POST /ask</span></div>
+
+        <div class="topo-row">
+          <div class="k8s-node svc">
+            <div class="kind">Service · ClusterIP :80</div>
+            <div class="name">nl-query</div>
+          </div>
+        </div>
+        <div class="topo-arrow">↓<span class="label">forwards to container :8000</span></div>
+
+        <div class="topo-row">
+          <div class="k8s-node pod">
+            <div class="kind">Deployment / Pod</div>
+            <div class="name">nl-query</div>
+            <div class="meta">FastAPI · non-root · readOnlyRootFS · dropped caps<br>liveness + readiness probes · CPU/mem requests &amp; limits</div>
+          </div>
+          <div class="topo-side">
+            <span style="font-size: 18px; color: var(--muted);">◀━ mount</span>
+            <span>at /etc/nl-query/schema_card.txt</span>
+          </div>
+          <div class="k8s-node cm">
+            <div class="kind">ConfigMap (read-only mount)</div>
+            <div class="name">nl-query-schema</div>
+            <div class="meta">schema_card.txt — the governance surface<br>changes go through a PR, not kubectl</div>
+          </div>
+        </div>
+        <div class="topo-arrow">↓<span class="label">POST /api/generate (in-cluster DNS)</span></div>
+
+        <div class="topo-row">
+          <div class="k8s-node svc">
+            <div class="kind">Service · ClusterIP :11434</div>
+            <div class="name">ollama</div>
+          </div>
+        </div>
+        <div class="topo-arrow">↓</div>
+
+        <div class="topo-row">
+          <div class="k8s-node pod">
+            <div class="kind">Deployment / Pod</div>
+            <div class="name">ollama</div>
+            <div class="meta">ollama/ollama:latest · model on emptyDir (demo) or PVC (prod)<br>1 CPU req · 4 CPU / 8 Gi limit · GPU node pool in prod</div>
+          </div>
+        </div>
+
+        <div class="topo-arrow">↑</div>
+        <div class="topo-row">
+          <div class="k8s-node data">
+            <div class="kind">Data (mounted at /data on the nl-query pod)</div>
+            <div class="name">today: parquet baked into image</div>
+            <div class="meta">in prod: Kafka consumer → query store (Iceberg / ClickHouse / DuckDB on PVC)<br>this service stays unchanged — only the data layer behind it moves</div>
+          </div>
+        </div>
+
+        <p class="hint" style="margin-top: 20px; font-size: 13px; color: var(--muted);">
+          One <code>kustomize</code> base: 2 Deployments, 2 Services, 1 ConfigMap.
+          <code>kubectl apply -k talks/VELUX_05_2026/deploy/base</code> — done.
+          Promotion to staging/prod is the same diff, just a different cluster.
+        </p>
+      </section>
+
+      <section class="topology" aria-label="Demo-grade vs production">
+        <h2 class="floor-title">What's demo-grade — and what real looks like</h2>
+        <table class="prod-table">
+          <thead>
+            <tr><th>In this kustomize base</th><th>Production shape</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Parquet baked into the container image</td><td>Kafka consumer → query store (Iceberg, ClickHouse, DuckDB on PVC)</td></tr>
+            <tr><td>Ollama in-cluster, emptyDir model cache</td><td>Shared inference plane, model PVC pre-populated, GPU node pool</td></tr>
+            <tr><td>Single replica, no HPA</td><td>HPA on RPS or queue depth + PodDisruptionBudget</td></tr>
+            <tr><td><code>default</code> ServiceAccount, automount off</td><td>Workload Identity (WIF / IRSA / Azure AD WI)</td></tr>
+            <tr><td>No NetworkPolicy</td><td>Egress-default-deny, allow only the ollama Service</td></tr>
+            <tr><td>No mTLS, no AuthN at the service</td><td>Mesh or gateway in front; AuthN at the edge</td></tr>
+            <tr><td><code>latest</code> Ollama image tag</td><td>Pinned digest, image-scanned, SBOM in the registry</td></tr>
+            <tr><td><code>kubectl apply -k</code> from a laptop</td><td>GitOps — Argo, Flux, whatever your platform team already runs</td></tr>
+          </tbody>
+        </table>
+        <p class="hint" style="margin-top: 16px; font-size: 13px; color: var(--muted);">
+          None of these are research problems. They're applied platform
+          engineering this room already does for every other workload.
+          The AI plane is a new application; it isn't a new platform.
+        </p>
+      </section>
+    </div><!-- /tab-deploy -->
   </main>
 
   <script>
     const $ = (id) => document.getElementById(id);
     const ribbon = $('ribbon');
     const form = $('askForm');
+
+    // Tab switching with #demo / #deploy hash routing — the speaker can
+    // bookmark either view and the back button works.
+    function activateTab(name) {
+      if (!['demo', 'deploy'].includes(name)) name = 'demo';
+      document.querySelectorAll('.tab').forEach(t =>
+        t.classList.toggle('active', t.dataset.tab === name));
+      document.querySelectorAll('.tab-panel').forEach(p =>
+        p.classList.toggle('active', p.id === 'tab-' + name));
+      if (location.hash !== '#' + name) {
+        history.replaceState(null, '', '#' + name);
+      }
+    }
+    document.querySelectorAll('.tab').forEach(t =>
+      t.addEventListener('click', () => activateTab(t.dataset.tab)));
+    window.addEventListener('hashchange', () =>
+      activateTab((location.hash || '#demo').slice(1)));
+    activateTab((location.hash || '#demo').slice(1));
     const input = $('question');
     const btn = $('askBtn');
     const responseEl = $('response');
