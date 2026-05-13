@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>VELUX IIoT — ask the factory</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --fg: #1a1a1a;
+      --muted: #6b7280;
+      --bg: #f8f9fb;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --accent: #c41e3a;
+      --accent-soft: #fbe9ec;
+      --code-bg: #f3f4f6;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   "SF Pro Text", Helvetica, Arial, sans-serif;
+      color: var(--fg);
+      background: var(--bg);
+      padding: 32px 48px 64px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    header { margin-bottom: 24px; max-width: 1100px; }
+    h1 {
+      font-size: 26px;
+      font-weight: 600;
+      margin: 0 0 6px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .subtitle { color: var(--muted); font-size: 14px; max-width: 720px; }
+    .ribbon {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-weight: 500;
+    }
+    main { max-width: 1100px; }
+    .ask { display: flex; gap: 12px; margin-bottom: 12px; }
+    .ask input {
+      flex: 1;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 18px;
+      background: var(--card);
+      font-family: inherit;
+    }
+    .ask input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+    .ask button {
+      padding: 0 32px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--accent);
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      min-width: 140px;
+    }
+    .ask button:hover:not(:disabled) { filter: brightness(0.95); }
+    .ask button:disabled { opacity: 0.55; cursor: not-allowed; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+    .chip {
+      padding: 7px 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+    .chip:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .response {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 32px;
+      transition: opacity 0.15s ease;
+    }
+    .response.loading { opacity: 0.35; }
+    .annotation {
+      font-size: 19px;
+      line-height: 1.55;
+      margin: 0 0 24px;
+      white-space: pre-wrap;
+    }
+    .chart img {
+      width: 100%;
+      height: auto;
+      display: block;
+      margin-bottom: 28px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 32px;
+    }
+    .grid h3 {
+      margin: 0 0 10px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td {
+      text-align: left;
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    th { color: var(--muted); font-weight: 500; }
+    pre.plan {
+      background: var(--code-bg);
+      border-radius: 6px;
+      padding: 14px;
+      font-size: 12px;
+      overflow-x: auto;
+      margin: 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      line-height: 1.5;
+    }
+    .empty { color: var(--muted); font-style: italic; }
+    .placeholder {
+      background: var(--card);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: -2px;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Ask the factory <span class="ribbon" id="ribbon">…</span></h1>
+    <div class="subtitle">
+      Natural-language interface to the IIoT topic. Same Kafka topic, same
+      schema card in a ConfigMap, same three-stage pipeline as the notebook.
+      <a href="/schema" target="_blank" style="color: var(--accent);">View schema card →</a>
+    </div>
+  </header>
+
+  <main>
+    <form class="ask" id="askForm">
+      <input id="question"
+             type="text"
+             placeholder="e.g. show me machines on line 2 that drifted last week"
+             autocomplete="off" />
+      <button type="submit" id="askBtn">Ask</button>
+    </form>
+
+    <div class="chips" id="chips">
+      <span class="chip" data-q="What was the throughput on line 2 yesterday?">Throughput on line 2 yesterday</span>
+      <span class="chip" data-q="Show me machines on line 2 that drifted last week">Drift on line 2 last week</span>
+      <span class="chip" data-q="What happened on the glass cutter Monday morning?">Glass cutter Monday morning</span>
+      <span class="chip" data-q="Compare motor current across line_3 yesterday">Motor current on line_3</span>
+    </div>
+
+    <section class="placeholder" id="placeholder">
+      Pick a question above or type your own.
+    </section>
+
+    <section class="response" id="response" hidden>
+      <p class="annotation" id="annotation"></p>
+      <div class="chart"><img id="chart" alt="" /></div>
+      <div class="grid">
+        <div>
+          <h3>What the model translated your question into</h3>
+          <pre class="plan" id="plan"></pre>
+        </div>
+        <div>
+          <h3>Events in window</h3>
+          <div id="events"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const ribbon = $('ribbon');
+    const form = $('askForm');
+    const input = $('question');
+    const btn = $('askBtn');
+    const responseEl = $('response');
+    const placeholder = $('placeholder');
+
+    // Surface which client (and model, if Ollama) is active.
+    fetch('/healthz').then(r => r.json()).then(d => {
+      ribbon.textContent = d.model ? `${d.client} · ${d.model}` : d.client || 'unknown';
+    }).catch(() => { ribbon.textContent = 'offline'; });
+
+    document.querySelectorAll('.chip').forEach(c => {
+      c.addEventListener('click', () => {
+        input.value = c.dataset.q;
+        form.requestSubmit();
+      });
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const q = input.value.trim();
+      if (!q) return;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Thinking';
+      placeholder.hidden = true;
+      const isFirst = responseEl.hidden;
+      responseEl.hidden = false;
+      if (!isFirst) responseEl.classList.add('loading');
+      try {
+        const res = await fetch('/ask', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ question: q }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ detail: res.statusText }));
+          throw new Error(err.detail || res.statusText);
+        }
+        const data = await res.json();
+        renderResponse(data);
+      } catch (err) {
+        $('annotation').textContent = 'Error: ' + err.message;
+        $('chart').removeAttribute('src');
+        $('plan').textContent = '';
+        $('events').innerHTML = '';
+      } finally {
+        responseEl.classList.remove('loading');
+        btn.disabled = false;
+        btn.textContent = 'Ask';
+      }
+    });
+
+    function renderResponse(data) {
+      $('annotation').textContent = data.annotation || '';
+      if (data.chart_png) {
+        $('chart').src = 'data:image/png;base64,' + data.chart_png;
+      } else {
+        $('chart').removeAttribute('src');
+      }
+      $('plan').textContent = JSON.stringify(data.plan, null, 2);
+      renderEvents(data.events || []);
+    }
+
+    function renderEvents(events) {
+      if (events.length === 0) {
+        $('events').innerHTML = '<p class="empty">(none)</p>';
+        return;
+      }
+      const rows = events.map(e =>
+        '<tr>' +
+          `<td>${esc(short(e.timestamp))}</td>` +
+          `<td>${esc(e.machine_id)}</td>` +
+          `<td>${esc(e.severity || '')}</td>` +
+          `<td>${esc(e.code || '')}</td>` +
+          `<td>${esc(e.message || '')}</td>` +
+        '</tr>'
+      ).join('');
+      $('events').innerHTML =
+        '<table><thead><tr>' +
+          '<th>time</th><th>machine</th><th>sev</th><th>code</th><th>message</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table>';
+    }
+
+    function short(ts) { return (ts || '').slice(0, 16).replace('T', ' '); }
+    function esc(s) {
+      return String(s).replace(/[<>&"]/g, c =>
+        ({ '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;' }[c]));
+    }
+  </script>
+</body>
+</html>

@@ -17,6 +17,7 @@ RUN pip install -r /app/requirements.txt
 # Shared helper module — same code path the notebook uses.
 COPY src/nl_query.py /app/nl_query.py
 COPY service/app.py /app/app.py
+COPY service/static /app/static
 
 # Demo data — see comment at top. Replace with a volume mount in prod.
 COPY data/synthetic_factory.parquet /data/measurements.parquet
