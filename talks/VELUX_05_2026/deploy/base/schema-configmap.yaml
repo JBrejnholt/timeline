@@ -25,11 +25,23 @@ data:
       line_2: folder_02, glass_cutter
       line_3: edge_bonder, quality_station
 
-    Data window: 2026-05-04T00:00:00Z .. 2026-05-06T00:00:00Z (two days).
-    For date arithmetic treat "today" as 2026-05-06.
-      "yesterday"       -> 2026-05-05T00:00:00Z .. 2026-05-06T00:00:00Z
-      "Monday morning"  -> 2026-05-04T06:00:00Z .. 2026-05-04T12:00:00Z
-      "last week"       -> the two available days
+    DATA WINDOW (HARD CONSTRAINT — never return dates outside this range):
+      2026-05-18T00:00:00Z .. 2026-05-21T00:00:00Z  (three days, Mon-Wed).
+
+    DATE ARITHMETIC (use these mappings literally — do not compute your own):
+      "today"           -> 2026-05-21 (Thursday, the talk day)
+      "yesterday"       -> 2026-05-20T00:00:00Z .. 2026-05-21T00:00:00Z  (Wed)
+      "Wednesday"       -> 2026-05-20T00:00:00Z .. 2026-05-21T00:00:00Z
+      "Tuesday"         -> 2026-05-19T00:00:00Z .. 2026-05-20T00:00:00Z
+      "Monday"          -> 2026-05-18T00:00:00Z .. 2026-05-19T00:00:00Z
+      "Monday morning"  -> 2026-05-18T06:00:00Z .. 2026-05-18T12:00:00Z
+      "this week"       -> 2026-05-18T00:00:00Z .. 2026-05-21T00:00:00Z
+      "last week"       -> 2026-05-18T00:00:00Z .. 2026-05-21T00:00:00Z
+
+    DRIFT INTENT (always use these two windows):
+      baseline    -> 2026-05-18T00:00:00Z .. 2026-05-19T00:00:00Z (Monday)
+      time_window -> 2026-05-20T00:00:00Z .. 2026-05-21T00:00:00Z (Wednesday)
+    Never pick a baseline before 2026-05-18 — there is no data there.
 
     Return ONLY a JSON object with these keys:
       intent      : one of "lookup" | "drift" | "anomaly" | "compare"
@@ -48,18 +60,18 @@ data:
     Q: What was the throughput on line 2 yesterday?
     A: {"intent":"lookup","signal":"throughput_pcs_per_min","line_id":"line_2",
         "machine_id":null,
-        "time_window":{"start":"2026-05-05T00:00:00Z","end":"2026-05-06T00:00:00Z"},
+        "time_window":{"start":"2026-05-20T00:00:00Z","end":"2026-05-21T00:00:00Z"},
         "aggregation":"timeseries"}
 
     Q: Show me machines on line 2 that drifted last week.
     A: {"intent":"drift","signal":"vibration_rms_mm_s","line_id":"line_2",
         "machine_id":null,
-        "time_window":{"start":"2026-05-05T00:00:00Z","end":"2026-05-06T00:00:00Z"},
-        "baseline":{"start":"2026-05-04T00:00:00Z","end":"2026-05-04T18:00:00Z"},
+        "time_window":{"start":"2026-05-20T00:00:00Z","end":"2026-05-21T00:00:00Z"},
+        "baseline":{"start":"2026-05-18T00:00:00Z","end":"2026-05-19T00:00:00Z"},
         "aggregation":"mean"}
 
     Q: What happened on the glass cutter Monday morning?
     A: {"intent":"anomaly","signal":"throughput_pcs_per_min","line_id":"line_2",
         "machine_id":["glass_cutter"],
-        "time_window":{"start":"2026-05-04T06:00:00Z","end":"2026-05-04T12:00:00Z"},
+        "time_window":{"start":"2026-05-18T06:00:00Z","end":"2026-05-18T12:00:00Z"},
         "aggregation":"timeseries"}

@@ -50,11 +50,23 @@ Lines and machines:
   line_2: folder_02, glass_cutter
   line_3: edge_bonder, quality_station
 
-Data window: 2026-05-04T00:00:00Z .. 2026-05-06T00:00:00Z (two days).
-For date arithmetic treat "today" as 2026-05-06.
-  "yesterday"       -> 2026-05-05T00:00:00Z .. 2026-05-06T00:00:00Z
-  "Monday morning"  -> 2026-05-04T06:00:00Z .. 2026-05-04T12:00:00Z
-  "last week"       -> the two available days
+DATA WINDOW (HARD CONSTRAINT — never return dates outside this range):
+  2026-05-18T00:00:00Z .. 2026-05-21T00:00:00Z  (three days, Mon-Wed).
+
+DATE ARITHMETIC (use these mappings literally — do not compute your own):
+  "today"           -> 2026-05-21 (Thursday, the talk day)
+  "yesterday"       -> 2026-05-20T00:00:00Z .. 2026-05-21T00:00:00Z  (Wed)
+  "Wednesday"       -> 2026-05-20T00:00:00Z .. 2026-05-21T00:00:00Z
+  "Tuesday"         -> 2026-05-19T00:00:00Z .. 2026-05-20T00:00:00Z
+  "Monday"          -> 2026-05-18T00:00:00Z .. 2026-05-19T00:00:00Z
+  "Monday morning"  -> 2026-05-18T06:00:00Z .. 2026-05-18T12:00:00Z
+  "this week"       -> 2026-05-18T00:00:00Z .. 2026-05-21T00:00:00Z
+  "last week"       -> 2026-05-18T00:00:00Z .. 2026-05-21T00:00:00Z
+
+DRIFT INTENT (always use these two windows):
+  baseline    -> 2026-05-18T00:00:00Z .. 2026-05-19T00:00:00Z (Monday)
+  time_window -> 2026-05-20T00:00:00Z .. 2026-05-21T00:00:00Z (Wednesday)
+Never pick a baseline before 2026-05-18 — there is no data there.
 
 Return ONLY a JSON object with these keys:
   intent      : one of "lookup" | "drift" | "anomaly" | "compare"
@@ -73,20 +85,20 @@ Examples (study these — then answer the actual question).
 Q: What was the throughput on line 2 yesterday?
 A: {"intent":"lookup","signal":"throughput_pcs_per_min","line_id":"line_2",
     "machine_id":null,
-    "time_window":{"start":"2026-05-05T00:00:00Z","end":"2026-05-06T00:00:00Z"},
+    "time_window":{"start":"2026-05-20T00:00:00Z","end":"2026-05-21T00:00:00Z"},
     "aggregation":"timeseries"}
 
 Q: Show me machines on line 2 that drifted last week.
 A: {"intent":"drift","signal":"vibration_rms_mm_s","line_id":"line_2",
     "machine_id":null,
-    "time_window":{"start":"2026-05-05T00:00:00Z","end":"2026-05-06T00:00:00Z"},
-    "baseline":{"start":"2026-05-04T00:00:00Z","end":"2026-05-04T18:00:00Z"},
+    "time_window":{"start":"2026-05-20T00:00:00Z","end":"2026-05-21T00:00:00Z"},
+    "baseline":{"start":"2026-05-18T00:00:00Z","end":"2026-05-19T00:00:00Z"},
     "aggregation":"mean"}
 
 Q: What happened on the glass cutter Monday morning?
 A: {"intent":"anomaly","signal":"throughput_pcs_per_min","line_id":"line_2",
     "machine_id":["glass_cutter"],
-    "time_window":{"start":"2026-05-04T06:00:00Z","end":"2026-05-04T12:00:00Z"},
+    "time_window":{"start":"2026-05-18T06:00:00Z","end":"2026-05-18T12:00:00Z"},
     "aggregation":"timeseries"}
 """
 
@@ -200,6 +212,8 @@ def _mock_key(prompt: str) -> str:
         return "drift_line2"
     if "glass" in p or "stuck" in p:
         return "glass_cutter_event"
+    if "motor current" in p and ("line 3" in p or "line_3" in p):
+        return "motor_current_line3"
     if "throughput" in p and ("yesterday" in p or "tuesday" in p):
         return "throughput_line2_yesterday"
     if "vibration" in p or "bearing" in p:
@@ -214,7 +228,7 @@ def default_mock_client() -> MockClient:
             "signal": "throughput_pcs_per_min",
             "line_id": "line_2",
             "machine_id": None,
-            "time_window": {"start": "2026-05-05T00:00:00Z", "end": "2026-05-06T00:00:00Z"},
+            "time_window": {"start": "2026-05-20T00:00:00Z", "end": "2026-05-21T00:00:00Z"},
             "aggregation": "timeseries",
         }),
         "drift_line2": json.dumps({
@@ -222,8 +236,8 @@ def default_mock_client() -> MockClient:
             "signal": "vibration_rms_mm_s",
             "line_id": "line_2",
             "machine_id": None,
-            "time_window": {"start": "2026-05-05T00:00:00Z", "end": "2026-05-06T00:00:00Z"},
-            "baseline": {"start": "2026-05-04T00:00:00Z", "end": "2026-05-04T18:00:00Z"},
+            "time_window": {"start": "2026-05-20T00:00:00Z", "end": "2026-05-21T00:00:00Z"},
+            "baseline": {"start": "2026-05-18T00:00:00Z", "end": "2026-05-19T00:00:00Z"},
             "aggregation": "mean",
         }),
         "glass_cutter_event": json.dumps({
@@ -231,26 +245,35 @@ def default_mock_client() -> MockClient:
             "signal": "throughput_pcs_per_min",
             "line_id": "line_2",
             "machine_id": ["glass_cutter"],
-            "time_window": {"start": "2026-05-04T10:00:00Z", "end": "2026-05-04T11:00:00Z"},
+            "time_window": {"start": "2026-05-18T10:00:00Z", "end": "2026-05-18T11:00:00Z"},
             "aggregation": "timeseries",
+        }),
+        "motor_current_line3": json.dumps({
+            "intent": "compare",
+            "signal": "motor_current_a",
+            "line_id": "line_3",
+            "machine_id": None,
+            "time_window": {"start": "2026-05-20T00:00:00Z", "end": "2026-05-21T00:00:00Z"},
+            "aggregation": "mean",
         }),
         "__default__": json.dumps({
             "intent": "lookup",
             "signal": "throughput_pcs_per_min",
             "line_id": None,
             "machine_id": None,
-            "time_window": {"start": "2026-05-04T00:00:00Z", "end": "2026-05-06T00:00:00Z"},
+            "time_window": {"start": "2026-05-18T00:00:00Z", "end": "2026-05-21T00:00:00Z"},
             "aggregation": "mean",
         }),
     }
     annotations = {
         "drift_line2": (
-            "On line_2, folder_02 vibration drifted from ~2.5 mm/s during the "
-            "baseline window to ~5.5 mm/s by the end of the comparison window — "
-            "roughly a 2.2x increase. glass_cutter stayed within its normal "
-            "range. Two warning alarms (VIB_W01, VIB_W02) and one error "
-            "(VIB_E01, 3.5x spike at 09:30) fired on folder_02 — consistent "
-            "with progressive bearing wear ending in a shedding event."
+            "Line line_2: 1 of 2 machines drifted >20% on vibration_rms_mm_s. "
+            "folder_02 vibration drifted from ~2.5 mm/s on Monday to ~5.2 mm/s "
+            "by Wednesday — roughly a 2.1x increase. glass_cutter stayed within "
+            "its normal range. Two warning alarms (VIB_W01 Monday 20:10, "
+            "VIB_W02 Tuesday 08:15) and one error (VIB_E01 Tuesday 09:30, 3.5x "
+            "spike) fired on folder_02 — consistent with progressive bearing "
+            "wear ending in a shedding event."
         ),
         "glass_cutter_event": (
             "At 10:30 Monday, glass_cutter throughput dropped to 0 pcs/min for "
@@ -260,11 +283,14 @@ def default_mock_client() -> MockClient:
             "conveyor, manually freed. Production resumed at 10:38."
         ),
         "throughput_line2_yesterday": (
-            "On line_2 yesterday, folder_02 ran near its 14 pcs/min target and "
-            "glass_cutter near its 10 pcs/min target, with the three usual "
-            "shift-handover dips at 06/14/22. Throughput was nominal — but "
-            "the events log shows vibration warnings on folder_02 worth a "
-            "second look."
+            "On line_2 yesterday (Wednesday), folder_02 ran near its 14 pcs/min "
+            "target and glass_cutter near its 10 pcs/min target, with the three "
+            "usual shift-handover dips at 06/14/22. Throughput was nominal."
+        ),
+        "motor_current_line3": (
+            "On line_3 yesterday: edge_bonder averaged ~4.4 A and "
+            "quality_station ~7.6 A — both within their normal operating "
+            "range. No alarms on line_3 in the window."
         ),
         "__default__": "Result computed; see chart and stats above.",
     }
@@ -298,6 +324,11 @@ MACHINES = {
     "folder_02", "glass_cutter",
     "edge_bonder", "quality_station",
 }
+# Hard data-window bounds. Plans whose time_window or baseline reach
+# outside these are rejected — typical failure mode for small models that
+# invent "previous week" baselines that don't exist in the data.
+DATA_WINDOW_START = pd.Timestamp("2026-05-18T00:00:00Z")
+DATA_WINDOW_END   = pd.Timestamp("2026-05-21T00:00:00Z")
 
 
 def make_plan(
@@ -357,12 +388,28 @@ def _validate_plan(plan: dict) -> None:
         if not isinstance(machines, list) or not set(machines).issubset(MACHINES):
             raise ValueError(f"unknown machine in: {machines!r}")
     tw = plan.get("time_window") or {}
-    pd.Timestamp(tw["start"])  # raises if invalid
-    pd.Timestamp(tw["end"])
+    _check_window("time_window", tw)
     if plan.get("intent") == "drift":
-        b = plan.get("baseline") or {}
-        pd.Timestamp(b["start"])
-        pd.Timestamp(b["end"])
+        _check_window("baseline", plan.get("baseline") or {})
+
+
+def _check_window(label: str, w: dict) -> None:
+    """Window must parse AND overlap the data window — otherwise the
+    plan will compute over zero rows and the LLM annotator will
+    hallucinate numbers to fill the void."""
+    start = pd.Timestamp(w["start"])
+    end = pd.Timestamp(w["end"])
+    if end <= start:
+        raise ValueError(f"{label}: end <= start ({w!r})")
+    # Allow a small slop on either side, but require non-trivial overlap.
+    overlap_start = max(start, DATA_WINDOW_START)
+    overlap_end = min(end, DATA_WINDOW_END)
+    if overlap_end <= overlap_start:
+        raise ValueError(
+            f"{label} {start.isoformat()}..{end.isoformat()} is outside "
+            f"the data window {DATA_WINDOW_START.isoformat()}.."
+            f"{DATA_WINDOW_END.isoformat()}"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -531,6 +578,19 @@ def annotate(
         return ("No measurements in the requested window — the model picked a "
                 "time range outside the available data. Try a different "
                 "question or widen the window.")
+    # If any stat is NaN (typically: drift baseline outside the data window)
+    # the LLM will hallucinate a number to fill the void. Refuse instead and
+    # surface the deterministic summary the UI already shows.
+    def _has_nan(rows: list[dict]) -> bool:
+        for r in rows:
+            for v in r.values():
+                if isinstance(v, float) and v != v:
+                    return True
+        return False
+    if _has_nan(stats.get("per_machine") or []):
+        return ("Some stats came back as NaN — the model probably chose a "
+                "baseline window outside the data. The summary above reflects "
+                "what was actually computable.")
     payload = {
         "question": question,
         "stats": stats,
