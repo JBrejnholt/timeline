@@ -218,6 +218,25 @@
       border-radius: 4px;
       margin: 0 0 20px;
     }
+    /* Repairs notice — when the deterministic post-pass patched the LLM plan */
+    .repairs {
+      background: #fffaf0;
+      border-left: 4px solid #f59e0b;
+      color: #78350f;
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 4px;
+      margin: 0 0 16px;
+    }
+    .repairs strong {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #92400e;
+      margin-bottom: 4px;
+    }
+    .repairs ul { margin: 0; padding-left: 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
     .annotation {
       font-size: 19px;
       line-height: 1.55;
@@ -487,6 +506,7 @@
 
     <section class="response" id="response" hidden>
       <div class="summary" id="summary" hidden></div>
+      <div class="repairs" id="repairs" hidden></div>
       <p class="annotation" id="annotation"></p>
       <div class="chart"><img id="chart" alt="" /></div>
       <div class="grid">
@@ -580,6 +600,15 @@
         sumEl.hidden = false;
       } else {
         sumEl.hidden = true;
+      }
+      const repairs = (data.plan && data.plan._repairs) || [];
+      const repEl = $('repairs');
+      if (repairs.length) {
+        repEl.innerHTML = '<strong>Plan auto-repaired — the platform layer caught what the LLM missed</strong>' +
+          '<ul>' + repairs.map(r => `<li>${esc(r)}</li>`).join('') + '</ul>';
+        repEl.hidden = false;
+      } else {
+        repEl.hidden = true;
       }
       $('annotation').textContent = data.annotation || '';
       if (data.chart_png) {

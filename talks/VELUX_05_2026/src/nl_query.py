@@ -338,17 +338,16 @@ def make_plan(
     """Stage 1: NL question -> validated JSON plan.
 
     Tries the LLM first. If parsing or validation fails, falls back to the
-    mock client's plan for the same question and prints a one-line note.
-
-    `schema_card` lets a caller (e.g. the HTTP service) inject the card
-    from a mounted ConfigMap rather than relying on the module constant.
+    mock client's plan for the same question. Either way, the resulting
+    plan is run through _repair_plan() — a deterministic post-pass that
+    scans the question for entities (line, day, machine) the LLM should
+    have picked up and patches the plan when it missed them.
     """
     sc = schema_card or SCHEMA_CARD
     try:
         raw = client.complete(sc, question)
         plan = _parse_json(raw)
         _validate_plan(plan)
-        return plan
     except Exception as exc:
         if isinstance(client, MockClient):
             raise
@@ -358,7 +357,94 @@ def make_plan(
         raw = fallback.complete(sc, question)
         plan = _parse_json(raw)
         _validate_plan(plan)
-        return plan
+    return _repair_plan(question, plan)
+
+
+# Mapping for the deterministic plan-repair pass.
+LINE_MEMBERS = {
+    "line_1": ["folder_01", "sash_assembler"],
+    "line_2": ["folder_02", "glass_cutter"],
+    "line_3": ["edge_bonder", "quality_station"],
+}
+_MACHINE_TO_LINE = {m: l for l, ms in LINE_MEMBERS.items() for m in ms}
+_DAY_DATES = {
+    "monday":    ("2026-05-18", "2026-05-19"),
+    "tuesday":   ("2026-05-19", "2026-05-20"),
+    "wednesday": ("2026-05-20", "2026-05-21"),
+}
+
+
+def _repair_plan(question: str, plan: dict) -> dict:
+    """Patch the plan from entities found in the question text.
+
+    Small models routinely drop scope — e.g. for "was there an issue on
+    line_2 on Monday" they return line_id=null and time_window=full
+    window. This pass scans the question and the question wins. Repairs
+    are recorded in plan['_repairs'] so the UI can surface them as a
+    teaching moment.
+    """
+    repairs: list[str] = []
+    q = question.lower()
+
+    # Line — match "line_2", "line 2", "line2"
+    m = re.search(r"\bline[_\s]?([123])\b", q)
+    if m:
+        wanted = f"line_{m.group(1)}"
+        if plan.get("line_id") != wanted:
+            old = plan.get("line_id")
+            plan["line_id"] = wanted
+            repairs.append(f"line_id: {old!r} → {wanted!r} (in question)")
+
+    # Machine — exact name appears in the question
+    explicit_machines: list[str] = []
+    for name in _MACHINE_TO_LINE:
+        if re.search(rf"\b{name}\b", q):
+            explicit_machines.append(name)
+    if explicit_machines:
+        existing = plan.get("machine_id") or []
+        new_set = sorted(set(existing) | set(explicit_machines))
+        if set(new_set) != set(existing):
+            plan["machine_id"] = new_set
+            repairs.append(
+                f"machine_id: + {sorted(set(explicit_machines) - set(existing))!r}"
+            )
+        # Infer line if not set yet
+        if plan.get("line_id") is None:
+            inferred = {_MACHINE_TO_LINE[m] for m in explicit_machines}
+            if len(inferred) == 1:
+                plan["line_id"] = next(iter(inferred))
+                repairs.append(f"line_id: inferred → {plan['line_id']!r}")
+
+    # Time window — qualified day takes priority over bare day
+    new_window = None
+    label = None
+    for day, (start_date, end_date) in _DAY_DATES.items():
+        if re.search(rf"\b{day}\s+morning\b", q):
+            new_window = (f"{start_date}T06:00:00Z", f"{start_date}T12:00:00Z")
+            label = f"{day} morning"
+            break
+        if re.search(rf"\b{day}\s+afternoon\b", q):
+            new_window = (f"{start_date}T12:00:00Z", f"{start_date}T18:00:00Z")
+            label = f"{day} afternoon"
+            break
+    if new_window is None:
+        for day, (start_date, end_date) in _DAY_DATES.items():
+            if re.search(rf"\b{day}\b", q):
+                new_window = (f"{start_date}T00:00:00Z", f"{end_date}T00:00:00Z")
+                label = day
+                break
+    if new_window is None and re.search(r"\byesterday\b", q):
+        new_window = ("2026-05-20T00:00:00Z", "2026-05-21T00:00:00Z")
+        label = "yesterday (Wed)"
+    if new_window is not None:
+        tw = plan.get("time_window") or {}
+        if tw.get("start") != new_window[0] or tw.get("end") != new_window[1]:
+            plan["time_window"] = {"start": new_window[0], "end": new_window[1]}
+            repairs.append(f"time_window → {label} ({new_window[0][:10]})")
+
+    if repairs:
+        plan["_repairs"] = repairs
+    return plan
 
 
 def _parse_json(s: str) -> dict:
