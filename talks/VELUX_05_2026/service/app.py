@@ -93,14 +93,31 @@ def _warm_model(client: nl_query.LLMClient) -> None:
         log.warning("model warm-up failed: %s", exc)
 
 
+def _resolve_data_paths() -> tuple[Path, Path]:
+    """Find the parquet files. Container default is /data/*. For local dev
+    without env vars, fall back to the talk-repo layout (../data/*) so
+    `uvicorn app:app --app-dir service` Just Works from the talk root.
+    """
+    data = Path(os.environ.get("DATA_PATH", "/data/measurements.parquet"))
+    events = Path(os.environ.get("EVENTS_PATH", "/data/events.parquet"))
+    if data.exists() and events.exists():
+        return data, events
+    repo_data = Path(__file__).resolve().parent.parent / "data"
+    alt_data = repo_data / "synthetic_factory.parquet"
+    alt_events = repo_data / "synthetic_events.parquet"
+    if alt_data.exists() and alt_events.exists():
+        log.info("env paths not found; using repo data dir %s", repo_data)
+        return alt_data, alt_events
+    return data, events  # let pd.read_parquet raise the readable error
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    data_path = Path(os.environ.get("DATA_PATH", "/data/measurements.parquet"))
-    events_path = Path(os.environ.get("EVENTS_PATH", "/data/events.parquet"))
+    data_path, events_path = _resolve_data_paths()
     state.measurements = pd.read_parquet(data_path)
     state.events = pd.read_parquet(events_path)
-    log.info("loaded %d measurements, %d events",
-             len(state.measurements), len(state.events))
+    log.info("loaded %d measurements, %d events from %s",
+             len(state.measurements), len(state.events), data_path.parent)
 
     sp = os.environ.get("SCHEMA_CARD_PATH")
     if sp and Path(sp).exists():
