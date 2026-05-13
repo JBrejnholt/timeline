@@ -108,22 +108,20 @@ You explain factory-floor analysis results to engineers in plain English.
 
 You will receive a JSON payload with:
   - question : the original natural-language question
-  - stats    : numbers computed from the data (the per_machine list is
-               per-machine; numbers there belong to one machine each, not
-               to the whole line)
+  - stats    : numbers computed from the data
   - events   : alarms, MES messages and operator notes in the same window
 
-Write 2-4 sentences.
+Write 2-4 concise sentences. Tone: calm, Nordic, specific.
 
-If the question is about a LINE (line_1 / line_2 / line_3), START with a
-line-level statement (e.g. "Line line_2: 1 of 2 machines drifted >20%"),
-THEN cite the specific machines and their numbers. Do not jump straight
-to one machine when the question asked about a line.
-
-Cite each machine by name when quoting numbers. Do NOT invent any number
-that is not in the stats. Do NOT compute or combine numbers — only repeat
-what is in the stats. If stats are empty or n_rows is 0, say plainly that
-the window had no data. Tone: concise, calm, Nordic.
+Rules:
+1. If events is non-empty, lead with the events: name each by code,
+   machine and time.
+2. For line-scoped questions, start with a line-level statement before
+   drilling into machines.
+3. Cite each machine by its exact name from stats.per_machine. Use the
+   line_id from the plan only when the plan has set it.
+4. Use only numbers that appear in the stats payload. Do not compute,
+   combine, or estimate.
 """
 
 
@@ -570,17 +568,22 @@ def annotate(
 ) -> str:
     """Stage 3: ask the LLM to phrase the stats and events as plain English.
 
-    The LLM is told what was computed; it must not invent numbers. If stats
-    are empty (n_rows = 0 or no per_machine rows), return a deterministic
-    refusal — never let the model hallucinate numbers into a void.
+    Small models routinely (a) ignore events that are in the payload and
+    write "no alarms", (b) hallucinate a line_id that wasn't in the plan,
+    (c) invent numbers when given NaN. We can't fully fix that with a
+    prompt — so we guard the output deterministically:
+
+      - if stats are empty or NaN, skip the LLM entirely
+      - if events are present, build a deterministic events summary and
+        prepend it when the LLM's text doesn't cite any of the codes
+
+    The model can still write prose; the truth is always there too.
     """
     if stats.get("n_rows", 0) == 0 or not stats.get("per_machine"):
         return ("No measurements in the requested window — the model picked a "
                 "time range outside the available data. Try a different "
                 "question or widen the window.")
-    # If any stat is NaN (typically: drift baseline outside the data window)
-    # the LLM will hallucinate a number to fill the void. Refuse instead and
-    # surface the deterministic summary the UI already shows.
+
     def _has_nan(rows: list[dict]) -> bool:
         for r in rows:
             for v in r.values():
@@ -591,6 +594,7 @@ def annotate(
         return ("Some stats came back as NaN — the model probably chose a "
                 "baseline window outside the data. The summary above reflects "
                 "what was actually computable.")
+
     payload = {
         "question": question,
         "stats": stats,
@@ -599,13 +603,37 @@ def annotate(
     prompt = json.dumps(payload, default=str, indent=2)
     try:
         text = client.complete(ANNOTATE_SYSTEM, prompt).strip()
-        return _strip_fences(text)
+        text = _strip_fences(text)
     except Exception as exc:
         if isinstance(client, MockClient):
             raise
         print(f"[annotate] {client.name} failed ({exc}); using mock annotation")
         fb = default_mock_client()
-        return fb.complete(ANNOTATE_SYSTEM, prompt).strip()
+        text = fb.complete(ANNOTATE_SYSTEM, prompt).strip()
+
+    # Deterministic guard: if events are present but the LLM didn't cite any
+    # of their codes, prepend a structured events summary. Without this,
+    # small models routinely tell the operator "no alarms in the window"
+    # while the events table is sitting right there with five entries.
+    if not events.empty:
+        codes = set(events.code.dropna().unique())
+        if codes and not any(code in text for code in codes):
+            summary = _summarize_events(events)
+            text = summary + "\n\n" + text
+    return text
+
+
+def _summarize_events(events: pd.DataFrame) -> str:
+    """One-line-per-event deterministic summary. Used as a guard when the
+    LLM ignores events in its annotation."""
+    lines = [f"{len(events)} event(s) in window:"]
+    for _, e in events.iterrows():
+        ts = str(e.timestamp)[:16].replace("T", " ")
+        lines.append(
+            f"  • {ts}  {e.machine_id}  [{e.severity}] "
+            f"{e.code} — {e.message}"
+        )
+    return "\n".join(lines)
 
 
 def _events_for_prompt(events: pd.DataFrame) -> list[dict]:
