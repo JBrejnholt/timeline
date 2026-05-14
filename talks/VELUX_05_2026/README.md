@@ -3,12 +3,16 @@
 Demo code and notes for a 1-hour session with the VELUX IIoT platform team in
 Skjern on Thursday 2026-05-21.
 
+**Rendered slides:** <https://bitecloud.dk/presentations/velux-ai>
+
 **Working docs:**
 - [`CONTEXT.md`](./CONTEXT.md) — audience, talk arc, decisions. Read first.
 - [`CHEATSHEET.md`](./CHEATSHEET.md) — every defect, drift and event in the
   data, with verified question phrasings.
 - [`TALK_NOTES.md`](./TALK_NOTES.md) — stage cheat for the day. Pre-talk
   checklist, per-minute talking points, anticipated Q&A.
+- [`slides.md`](./slides.md) — Marp source for the deck. Rendered at the URL
+  above.
 
 ## Layout
 

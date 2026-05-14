@@ -15,10 +15,15 @@ cd talks/VELUX_05_2026
 .venv/bin/uvicorn app:app --app-dir service --port 8000
 # Wait for: "model warm-up complete"
 
-# 3. Open the browser full-screen at http://localhost:8000/
-#    Click each of the four chips once — confirm clean answer for all.
-#    Click the Deployment tab — confirm topology renders.
+# 3. Open two browser tabs / windows, both full-screen-ready:
+#    a. https://bitecloud.dk/presentations/velux-ai   ← slides
+#    b. http://localhost:8000/                        ← live demo
+#
+#    On the demo tab: click each of the four chips once — confirm clean
+#    answer for all. Click the Deployment tab — confirm topology renders.
 #    Click back to Demo. Leave on Demo.
+#
+#    On the slides tab: walk through with arrow keys. F for full-screen.
 ```
 
 If the model is slow on the first question after the talk starts:

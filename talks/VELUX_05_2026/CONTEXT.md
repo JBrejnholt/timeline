@@ -227,7 +227,8 @@ talks/VELUX_05_2026/
    `TALK_NOTES.md` (stage cheat for the day).
 8. **Deferred:** Hybrid classical-detect + LLM-explain (`03_*`). Cut from the
    talk. May ship after as a follow-up.
-9. **In progress:** Slides for the keynote + substance segment.
+9. **Done:** Slides drafted in `slides.md` (Marp), integrated into the
+   Bitecloud website. Rendered at <https://bitecloud.dk/presentations/velux-ai>.
 10. **Open:** Rehearse the 20-min keynote arc out loud. Multiple times.
 
 ## Working in Claude Code from here

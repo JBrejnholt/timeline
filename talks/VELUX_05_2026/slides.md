@@ -1,3 +1,9 @@
+<!--
+  Rendered version: https://bitecloud.dk/presentations/velux-ai
+  This file is the editable Marp source. The website hosts the canonical
+  rendered deck; iterate here, regenerate when content changes.
+-->
+
 ---
 marp: true
 theme: default
