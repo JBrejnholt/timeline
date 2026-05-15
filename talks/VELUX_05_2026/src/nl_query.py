@@ -374,6 +374,38 @@ _DAY_DATES = {
     "wednesday": ("2026-05-20", "2026-05-21"),
 }
 
+# Relative-date phrases that intentionally fall outside the data window.
+# These exist so the model can't punt to a full-window lookup when the
+# operator asks about a time we don't have data for — the downstream
+# "no data" path then gives a specific, honest answer naming both what
+# was asked and what's actually available.
+#
+# Ordered: most-specific first. The repair pass takes the first match.
+_OUT_OF_WINDOW_PATTERNS: list[tuple[str, str, str, str]] = [
+    # (regex, start_iso, end_iso, label)
+    (r"\b(an?|one)\s+month\s+ago\b",
+     "2026-04-15T00:00:00Z", "2026-04-16T00:00:00Z",
+     "a month ago (mid-April 2026) — outside data window"),
+    (r"\b(an?|one)\s+year\s+ago\b",
+     "2025-05-15T00:00:00Z", "2025-05-16T00:00:00Z",
+     "a year ago (mid-May 2025) — outside data window"),
+    (r"\blast\s+month\b",
+     "2026-04-01T00:00:00Z", "2026-05-01T00:00:00Z",
+     "last month (April 2026) — outside data window"),
+    (r"\blast\s+year\b",
+     "2025-05-01T00:00:00Z", "2025-06-01T00:00:00Z",
+     "last year (May 2025) — outside data window"),
+    (r"\bnext\s+month\b",
+     "2026-06-01T00:00:00Z", "2026-07-01T00:00:00Z",
+     "next month (June 2026) — outside data window"),
+    (r"\bnext\s+year\b",
+     "2027-05-01T00:00:00Z", "2027-06-01T00:00:00Z",
+     "next year (May 2027) — outside data window"),
+    (r"\bright\s+now\b",
+     "2026-05-21T12:00:00Z", "2026-05-21T13:00:00Z",
+     "right now (Thu 2026-05-21) — outside data window"),
+]
+
 
 def _repair_plan(question: str, plan: dict) -> dict:
     """Patch the plan from entities found in the question text.
@@ -447,6 +479,14 @@ def _repair_plan(question: str, plan: dict) -> dict:
     if new_window is None and re.search(r"\btomorrow\b", q):
         new_window = ("2026-05-22T00:00:00Z", "2026-05-23T00:00:00Z")
         label = "tomorrow (Fri 2026-05-22) — outside data window"
+    # Broader out-of-window phrases (last/next month, last/next year,
+    # a month/year ago, right now). Same plumbing as today/tomorrow.
+    if new_window is None:
+        for pattern, start, end, pat_label in _OUT_OF_WINDOW_PATTERNS:
+            if re.search(pattern, q):
+                new_window = (start, end)
+                label = pat_label
+                break
     if new_window is not None:
         tw = plan.get("time_window") or {}
         if tw.get("start") != new_window[0] or tw.get("end") != new_window[1]:
@@ -679,11 +719,12 @@ def annotate(
     if stats.get("n_rows", 0) == 0 or not stats.get("per_machine"):
         # Be specific: name the requested window and the available window
         # so the user knows whether the gap is on their side (e.g. asked
-        # about "tomorrow") or the system's.
+        # about "tomorrow") or the system's. DATA_WINDOW_END is exclusive,
+        # so subtract one day for the human-readable last day.
         asked = (f"{stats.get('window_start','?')[:10]} → "
                  f"{stats.get('window_end','?')[:10]}")
-        available = (f"{DATA_WINDOW_START.isoformat()[:10]} → "
-                     f"{DATA_WINDOW_END.isoformat()[:10]}")
+        last_day = (DATA_WINDOW_END - pd.Timedelta(days=1)).isoformat()[:10]
+        available = f"{DATA_WINDOW_START.isoformat()[:10]} → {last_day}"
         return (f"No data for the requested window ({asked}). "
                 f"The available data is {available} "
                 f"({_AVAILABLE_DESC}). Try a date inside that range.")
