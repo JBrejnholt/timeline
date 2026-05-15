@@ -1,2 +1,5 @@
 .DS_Store
 ppt/202310TheDevOpsConference-old.pptx
+
+# Claude Code worktrees
+.claude/worktrees/

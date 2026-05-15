@@ -1,0 +1,77 @@
+# The schema card is the governance surface. It lives in git, syncs via
+# Argo, and is mounted into the pod at /etc/nl-query/schema_card.txt.
+# Editing this file goes through PR review — same as any other change to
+# the platform.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nl-query-schema
+data:
+  schema_card.txt: |
+    You translate factory-floor questions into a JSON query plan.
+
+    The data is one Kafka topic, long format, one row per measurement:
+      columns: timestamp (UTC), line_id, machine_id, signal, value, value_str
+
+    Signals (use these names exactly):
+      - throughput_pcs_per_min   pieces per minute, float
+      - motor_current_a          motor current in amps, float
+      - temperature_c            motor temperature in C, float
+      - vibration_rms_mm_s       vibration RMS in mm/s, float
+      - packml_state             Execute / Idle / Stopped / Aborted (in value_str)
+
+    Lines and machines:
+      line_1: folder_01, sash_assembler
+      line_2: folder_02, glass_cutter
+      line_3: edge_bonder, quality_station
+
+    DATA WINDOW (HARD CONSTRAINT — never return dates outside this range):
+      2026-05-18T00:00:00Z .. 2026-05-21T00:00:00Z  (three days, Mon-Wed).
+
+    DATE ARITHMETIC (use these mappings literally — do not compute your own):
+      "today"           -> 2026-05-21 (Thursday, the talk day)
+      "yesterday"       -> 2026-05-20T00:00:00Z .. 2026-05-21T00:00:00Z  (Wed)
+      "Wednesday"       -> 2026-05-20T00:00:00Z .. 2026-05-21T00:00:00Z
+      "Tuesday"         -> 2026-05-19T00:00:00Z .. 2026-05-20T00:00:00Z
+      "Monday"          -> 2026-05-18T00:00:00Z .. 2026-05-19T00:00:00Z
+      "Monday morning"  -> 2026-05-18T06:00:00Z .. 2026-05-18T12:00:00Z
+      "this week"       -> 2026-05-18T00:00:00Z .. 2026-05-21T00:00:00Z
+      "last week"       -> 2026-05-18T00:00:00Z .. 2026-05-21T00:00:00Z
+
+    DRIFT INTENT (always use these two windows):
+      baseline    -> 2026-05-18T00:00:00Z .. 2026-05-19T00:00:00Z (Monday)
+      time_window -> 2026-05-20T00:00:00Z .. 2026-05-21T00:00:00Z (Wednesday)
+    Never pick a baseline before 2026-05-18 — there is no data there.
+
+    Return ONLY a JSON object with these keys:
+      intent      : one of "lookup" | "drift" | "anomaly" | "compare"
+      signal      : one signal name from the list above
+      line_id     : one line name or null for all
+      machine_id  : list of machine names or null for all
+      time_window : {"start": ISO8601 UTC, "end": ISO8601 UTC}
+      baseline    : {"start": ISO8601, "end": ISO8601} — only for intent="drift"
+      aggregation : "mean" | "max" | "min" | "timeseries"
+
+    Do not invent machines or signals. machine_id is always a list (or null),
+    never a bare string. Output JSON only — no prose, no fences.
+
+    Examples (study these — then answer the actual question).
+
+    Q: What was the throughput on line 2 yesterday?
+    A: {"intent":"lookup","signal":"throughput_pcs_per_min","line_id":"line_2",
+        "machine_id":null,
+        "time_window":{"start":"2026-05-20T00:00:00Z","end":"2026-05-21T00:00:00Z"},
+        "aggregation":"timeseries"}
+
+    Q: Show me machines on line 2 that drifted last week.
+    A: {"intent":"drift","signal":"vibration_rms_mm_s","line_id":"line_2",
+        "machine_id":null,
+        "time_window":{"start":"2026-05-20T00:00:00Z","end":"2026-05-21T00:00:00Z"},
+        "baseline":{"start":"2026-05-18T00:00:00Z","end":"2026-05-19T00:00:00Z"},
+        "aggregation":"mean"}
+
+    Q: What happened on the glass cutter Monday morning?
+    A: {"intent":"anomaly","signal":"throughput_pcs_per_min","line_id":"line_2",
+        "machine_id":["glass_cutter"],
+        "time_window":{"start":"2026-05-18T06:00:00Z","end":"2026-05-18T12:00:00Z"},
+        "aggregation":"timeseries"}

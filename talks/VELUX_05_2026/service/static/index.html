@@ -1,0 +1,912 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>VELUX IIoT — ask the factory</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --fg: #1a1a1a;
+      --muted: #6b7280;
+      --bg: #f8f9fb;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --accent: #c41e3a;
+      --accent-soft: #fbe9ec;
+      --code-bg: #f3f4f6;
+      --pipe-llm: #fff7ed;
+      --pipe-llm-border: #fdba74;
+      --pipe-det: #ecfeff;
+      --pipe-det-border: #67e8f9;
+      --pipe-src: #f5f3ff;
+      --pipe-src-border: #c4b5fd;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   "SF Pro Text", Helvetica, Arial, sans-serif;
+      color: var(--fg);
+      background: var(--bg);
+      padding: 32px 48px 64px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    header { margin-bottom: 20px; max-width: 1100px; }
+    h1 {
+      font-size: 26px;
+      font-weight: 600;
+      margin: 0 0 6px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .subtitle { color: var(--muted); font-size: 14px; max-width: 720px; }
+    .subtitle a { color: var(--accent); }
+    .ribbon {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-weight: 500;
+    }
+    main { max-width: 1100px; }
+
+    /* Compact context strip — always visible */
+    .context-strip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      font-size: 13px;
+    }
+
+    /* Factory floor schematic — three rows of machines, one per line */
+    .factory-floor {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+    .floor-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 600;
+      margin: 0 0 12px;
+    }
+    .line-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 10px;
+    }
+    .line-row:last-child { margin-bottom: 0; }
+    .line-label {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      color: var(--muted);
+      width: 56px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .machine {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      transition: all 0.2s ease;
+      min-width: 200px;
+    }
+    .machine .icon {
+      color: var(--muted);
+      flex-shrink: 0;
+      transition: color 0.2s ease;
+    }
+    .machine .icon svg { display: block; }
+    .machine .meta { display: flex; flex-direction: column; line-height: 1.2; }
+    .machine .mname {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px;
+      color: var(--fg);
+    }
+    .machine .mkind {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 2px;
+    }
+    .machine.focus {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.08);
+    }
+    .machine.focus .icon { color: var(--accent); }
+    .machine.focus .mname { color: var(--accent); font-weight: 600; }
+    .conveyor {
+      color: var(--muted);
+      font-size: 18px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      flex-shrink: 0;
+    }
+    .context-strip .label {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .context-strip code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
+    .ask { display: flex; gap: 12px; margin-bottom: 12px; }
+    .ask input {
+      flex: 1;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 18px;
+      background: var(--card);
+      font-family: inherit;
+    }
+    .ask input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+    .ask button {
+      padding: 0 32px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--accent);
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      min-width: 140px;
+    }
+    .ask button:hover:not(:disabled) { filter: brightness(0.95); }
+    .ask button:disabled { opacity: 0.55; cursor: not-allowed; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+    .chip {
+      padding: 7px 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+    .chip:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .response {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 32px;
+      transition: opacity 0.15s ease;
+    }
+    .response.loading { opacity: 0.35; }
+
+    /* Summary banner — the deterministic one-liner above the LLM text */
+    .summary {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      color: var(--fg);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 14px;
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin: 0 0 20px;
+    }
+    /* Repairs notice — when the deterministic post-pass patched the LLM plan */
+    .repairs {
+      background: #fffaf0;
+      border-left: 4px solid #f59e0b;
+      color: #78350f;
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 4px;
+      margin: 0 0 16px;
+    }
+    .repairs strong {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #92400e;
+      margin-bottom: 4px;
+    }
+    .repairs ul { margin: 0; padding-left: 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+    .annotation {
+      font-size: 19px;
+      line-height: 1.55;
+      margin: 0 0 24px;
+      white-space: pre-wrap;
+    }
+    .chart img {
+      width: 100%;
+      height: auto;
+      display: block;
+      margin-bottom: 28px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 32px;
+    }
+    .grid h3 {
+      margin: 0 0 10px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td {
+      text-align: left;
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    th { color: var(--muted); font-weight: 500; }
+    pre.plan {
+      background: var(--code-bg);
+      border-radius: 6px;
+      padding: 14px;
+      font-size: 12px;
+      overflow-x: auto;
+      margin: 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      line-height: 1.5;
+    }
+    .empty { color: var(--muted); font-style: italic; }
+
+    /* Tab nav — toggles the Demo / Deployment views */
+    .tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      user-select: none;
+      margin-bottom: -1px;
+      font-weight: 500;
+    }
+    .tab:hover { color: var(--fg); background: var(--card); }
+    .tab.active {
+      background: var(--card);
+      border-color: var(--border);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Deployment topology — K8s objects with colour by kind */
+    .topology {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+    }
+    .topo-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin: 6px 0;
+      flex-wrap: wrap;
+    }
+    .k8s-node {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      background: var(--card);
+      min-width: 260px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .k8s-node .kind {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    .k8s-node .name {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 14px;
+      margin: 4px 0 2px;
+      font-weight: 600;
+    }
+    .k8s-node .meta {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .k8s-node.client { background: var(--accent-soft); border-color: var(--accent); }
+    .k8s-node.client .kind { color: var(--accent); }
+    .k8s-node.client .name { color: var(--accent); }
+    .k8s-node.svc     { background: #ecfdf5; border-color: #6ee7b7; }
+    .k8s-node.svc .kind { color: #047857; }
+    .k8s-node.pod     { background: #eff6ff; border-color: #93c5fd; }
+    .k8s-node.pod .kind { color: #1e40af; }
+    .k8s-node.cm      { background: #f5f3ff; border-color: #c4b5fd; }
+    .k8s-node.cm .kind { color: #6d28d9; }
+    .k8s-node.data    { background: #fffaf0; border-color: #fcd34d; }
+    .k8s-node.data .kind { color: #92400e; }
+    .topo-arrow {
+      color: var(--muted);
+      font-size: 18px;
+      text-align: center;
+      margin: 2px 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .topo-arrow .label {
+      display: inline-block;
+      margin-left: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      font-family: inherit;
+    }
+    .topo-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Demo-vs-production table on the deploy tab */
+    .prod-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    .prod-table th, .prod-table td {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .prod-table th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .prod-table td:first-child { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--muted); }
+
+    /* Placeholder card with the pipeline diagram */
+    .placeholder {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px 32px 28px;
+    }
+    .placeholder h2 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 600;
+      margin: 0 0 16px;
+    }
+    .placeholder .hint {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 16px 0 0;
+    }
+
+    /* Pipeline diagram — pure CSS, no SVG */
+    .pipeline {
+      display: grid;
+      grid-template-columns: auto 1fr 1fr 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin: 0;
+    }
+    .pipeline .node {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 12px;
+      text-align: center;
+      background: var(--card);
+      font-size: 13px;
+    }
+    .pipeline .node .role {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .pipeline .node.you { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; min-width: 80px; }
+    .pipeline .node.llm { background: var(--pipe-llm); border-color: var(--pipe-llm-border); }
+    .pipeline .node.det { background: var(--pipe-det); border-color: var(--pipe-det-border); }
+    .pipeline .arrow {
+      text-align: center;
+      color: var(--muted);
+      font-size: 20px;
+      line-height: 1;
+    }
+    .pipeline-row2 {
+      display: grid;
+      grid-template-columns: auto 1fr 1fr 1fr auto;
+      gap: 12px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .pipeline-row2 .src {
+      background: var(--pipe-src);
+      border: 1px dashed var(--pipe-src-border);
+      border-radius: 6px;
+      padding: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+    }
+    .pipeline-row2 .empty-cell { /* spacer */ }
+
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: -2px;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Ask the factory <span class="ribbon" id="ribbon">…</span></h1>
+    <div class="subtitle">
+      Natural-language interface to the IIoT topic. Same Kafka topic, same
+      schema card in a ConfigMap, same three-stage pipeline as the notebook.
+      <a href="/schema" target="_blank">View schema card →</a>
+    </div>
+  </header>
+
+  <main>
+    <nav class="tabs" role="tablist">
+      <div class="tab active" data-tab="demo" role="tab">Demo</div>
+      <div class="tab" data-tab="deploy" role="tab">Deployment</div>
+    </nav>
+
+    <div id="tab-demo" class="tab-panel active">
+    <div class="context-strip" id="contextStrip">
+      <div><span class="label">Loading…</span></div>
+    </div>
+
+    <section class="factory-floor" aria-label="Factory floor schematic">
+      <h2 class="floor-title">Skjern factory — 3 lines, 6 machines</h2>
+      <div class="line-row">
+        <span class="line-label">line_1</span>
+        <div class="machine" data-machine="folder_01">
+          <span class="icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="6" width="18" height="12" rx="1"/>
+              <path d="M3 12 L21 12"/>
+              <path d="M12 6 L12 18" stroke-dasharray="2 2"/>
+            </svg>
+          </span>
+          <span class="meta"><span class="mname">folder_01</span><span class="mkind">folding</span></span>
+        </div>
+        <span class="conveyor">━━▶</span>
+        <div class="machine" data-machine="sash_assembler">
+          <span class="icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 2 L12 5 M12 19 L12 22 M2 12 L5 12 M19 12 L22 12 M5.5 5.5 L7.5 7.5 M16.5 16.5 L18.5 18.5 M5.5 18.5 L7.5 16.5 M16.5 7.5 L18.5 5.5"/>
+            </svg>
+          </span>
+          <span class="meta"><span class="mname">sash_assembler</span><span class="mkind">assembly</span></span>
+        </div>
+      </div>
+      <div class="line-row">
+        <span class="line-label">line_2</span>
+        <div class="machine" data-machine="folder_02">
+          <span class="icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="6" width="18" height="12" rx="1"/>
+              <path d="M3 12 L21 12"/>
+              <path d="M12 6 L12 18" stroke-dasharray="2 2"/>
+            </svg>
+          </span>
+          <span class="meta"><span class="mname">folder_02</span><span class="mkind">folding</span></span>
+        </div>
+        <span class="conveyor">━━▶</span>
+        <div class="machine" data-machine="glass_cutter">
+          <span class="icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 18 L21 18"/>
+              <path d="M3 12 L6 6 L9 12 L12 6 L15 12 L18 6 L21 12"/>
+            </svg>
+          </span>
+          <span class="meta"><span class="mname">glass_cutter</span><span class="mkind">cutting</span></span>
+        </div>
+      </div>
+      <div class="line-row">
+        <span class="line-label">line_3</span>
+        <div class="machine" data-machine="edge_bonder">
+          <span class="icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="9" width="8" height="6" rx="1"/>
+              <rect x="13" y="9" width="8" height="6" rx="1"/>
+              <path d="M11 12 L13 12" stroke-width="2.6"/>
+            </svg>
+          </span>
+          <span class="meta"><span class="mname">edge_bonder</span><span class="mkind">bonding</span></span>
+        </div>
+        <span class="conveyor">━━▶</span>
+        <div class="machine" data-machine="quality_station">
+          <span class="icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="10" cy="10" r="6"/>
+              <path d="M14.5 14.5 L20.5 20.5"/>
+              <path d="M7 10 L9.5 12.5 L13 8"/>
+            </svg>
+          </span>
+          <span class="meta"><span class="mname">quality_station</span><span class="mkind">quality</span></span>
+        </div>
+      </div>
+    </section>
+
+    <form class="ask" id="askForm">
+      <input id="question"
+             type="text"
+             placeholder="e.g. show me machines on line 2 that drifted last week"
+             autocomplete="off" />
+      <button type="submit" id="askBtn">Ask</button>
+    </form>
+
+    <div class="chips" id="chips">
+      <span class="chip" data-q="What was the throughput on line 2 yesterday?">Throughput on line 2 yesterday</span>
+      <span class="chip" data-q="Show me machines on line 2 that drifted last week">Drift on line 2 last week</span>
+      <span class="chip" data-q="What happened on the glass cutter Monday morning?">Glass cutter Monday morning</span>
+      <span class="chip" data-q="Compare motor current across line_3 yesterday">Motor current on line_3</span>
+    </div>
+
+    <section class="placeholder" id="placeholder">
+      <h2>How the demo works</h2>
+      <div class="pipeline">
+        <div class="node you">You</div>
+        <div class="node llm">1. PLAN<span class="role">LLM</span></div>
+        <div class="node det">2. EXECUTE<span class="role">pandas</span></div>
+        <div class="node llm">3. ANNOTATE<span class="role">LLM</span></div>
+        <div class="node you">You</div>
+      </div>
+      <div class="pipeline pipeline-row2">
+        <div class="arrow">↓</div>
+        <div class="arrow">↑</div>
+        <div class="arrow">↑</div>
+        <div class="arrow">↑</div>
+        <div class="empty-cell"></div>
+      </div>
+      <div class="pipeline pipeline-row2">
+        <div class="empty-cell"></div>
+        <div class="src">schema card<br><span style="opacity:0.7">(ConfigMap)</span></div>
+        <div class="src">measurements<br><span style="opacity:0.7">(parquet today,<br>Kafka tomorrow)</span></div>
+        <div class="src">events log<br><span style="opacity:0.7">(alarms +<br>operator notes)</span></div>
+        <div class="empty-cell"></div>
+      </div>
+      <p class="hint">
+        The LLM only translates words ↔ structured data. The execution
+        stage is deterministic pandas. No free-form SQL, no inventing
+        numbers — the schema card constrains what can be asked.
+      </p>
+    </section>
+
+    <section class="response" id="response" hidden>
+      <div class="summary" id="summary" hidden></div>
+      <div class="repairs" id="repairs" hidden></div>
+      <p class="annotation" id="annotation"></p>
+      <div class="chart"><img id="chart" alt="" /></div>
+      <div class="grid">
+        <div>
+          <h3>What the model translated your question into</h3>
+          <pre class="plan" id="plan"></pre>
+        </div>
+        <div>
+          <h3>Events in window</h3>
+          <div id="events"></div>
+        </div>
+      </div>
+    </section>
+    </div><!-- /tab-demo -->
+
+    <div id="tab-deploy" class="tab-panel">
+      <section class="topology" aria-label="Deployment topology">
+        <h2 class="floor-title">Deployment topology — what runs in the cluster</h2>
+
+        <div class="topo-row">
+          <div class="k8s-node client">
+            <div class="kind">Client</div>
+            <div class="name">browser · curl · CLI</div>
+            <div class="meta">in the demo: this same browser tab</div>
+          </div>
+        </div>
+        <div class="topo-arrow">↓<span class="label">HTTP POST /ask</span></div>
+
+        <div class="topo-row">
+          <div class="k8s-node svc">
+            <div class="kind">Service · ClusterIP :80</div>
+            <div class="name">nl-query</div>
+          </div>
+        </div>
+        <div class="topo-arrow">↓<span class="label">forwards to container :8000</span></div>
+
+        <div class="topo-row">
+          <div class="k8s-node pod">
+            <div class="kind">Deployment / Pod</div>
+            <div class="name">nl-query</div>
+            <div class="meta">FastAPI · non-root · readOnlyRootFS · dropped caps<br>liveness + readiness probes · CPU/mem requests &amp; limits</div>
+          </div>
+          <div class="topo-side">
+            <span style="font-size: 18px; color: var(--muted);">◀━ mount</span>
+            <span>at /etc/nl-query/schema_card.txt</span>
+          </div>
+          <div class="k8s-node cm">
+            <div class="kind">ConfigMap (read-only mount)</div>
+            <div class="name">nl-query-schema</div>
+            <div class="meta">schema_card.txt — the governance surface<br>changes go through a PR, not kubectl</div>
+          </div>
+        </div>
+        <div class="topo-arrow">↓<span class="label">POST /api/generate (in-cluster DNS)</span></div>
+
+        <div class="topo-row">
+          <div class="k8s-node svc">
+            <div class="kind">Service · ClusterIP :11434</div>
+            <div class="name">ollama</div>
+          </div>
+        </div>
+        <div class="topo-arrow">↓</div>
+
+        <div class="topo-row">
+          <div class="k8s-node pod">
+            <div class="kind">Deployment / Pod</div>
+            <div class="name">ollama</div>
+            <div class="meta">ollama/ollama:latest · model on emptyDir (demo) or PVC (prod)<br>1 CPU req · 4 CPU / 8 Gi limit · GPU node pool in prod</div>
+          </div>
+        </div>
+
+        <div class="topo-arrow">↑</div>
+        <div class="topo-row">
+          <div class="k8s-node data">
+            <div class="kind">Data (mounted at /data on the nl-query pod)</div>
+            <div class="name">today: parquet baked into image</div>
+            <div class="meta">in prod: Kafka consumer → query store (Iceberg / ClickHouse / DuckDB on PVC)<br>this service stays unchanged — only the data layer behind it moves</div>
+          </div>
+        </div>
+
+        <p class="hint" style="margin-top: 20px; font-size: 13px; color: var(--muted);">
+          One <code>kustomize</code> base: 2 Deployments, 2 Services, 1 ConfigMap.
+          <code>kubectl apply -k talks/VELUX_05_2026/deploy/base</code> — done.
+          Promotion to staging/prod is the same diff, just a different cluster.
+        </p>
+      </section>
+
+      <section class="topology" aria-label="Demo-grade vs production">
+        <h2 class="floor-title">What's demo-grade — and what real looks like</h2>
+        <table class="prod-table">
+          <thead>
+            <tr><th>In this kustomize base</th><th>Production shape</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Parquet baked into the container image</td><td>Kafka consumer → query store (Iceberg, ClickHouse, DuckDB on PVC)</td></tr>
+            <tr><td>Ollama in-cluster, emptyDir model cache</td><td>Shared inference plane, model PVC pre-populated, GPU node pool</td></tr>
+            <tr><td>Single replica, no HPA</td><td>HPA on RPS or queue depth + PodDisruptionBudget</td></tr>
+            <tr><td><code>default</code> ServiceAccount, automount off</td><td>Workload Identity (WIF / IRSA / Azure AD WI)</td></tr>
+            <tr><td>No NetworkPolicy</td><td>Egress-default-deny, allow only the ollama Service</td></tr>
+            <tr><td>No mTLS, no AuthN at the service</td><td>Mesh or gateway in front; AuthN at the edge</td></tr>
+            <tr><td><code>latest</code> Ollama image tag</td><td>Pinned digest, image-scanned, SBOM in the registry</td></tr>
+            <tr><td><code>kubectl apply -k</code> from a laptop</td><td>GitOps — Argo, Flux, whatever your platform team already runs</td></tr>
+          </tbody>
+        </table>
+        <p class="hint" style="margin-top: 16px; font-size: 13px; color: var(--muted);">
+          None of these are research problems. They're applied platform
+          engineering this room already does for every other workload.
+          The AI plane is a new application; it isn't a new platform.
+        </p>
+      </section>
+    </div><!-- /tab-deploy -->
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const ribbon = $('ribbon');
+    const form = $('askForm');
+
+    // Tab switching with #demo / #deploy hash routing — the speaker can
+    // bookmark either view and the back button works.
+    function activateTab(name) {
+      if (!['demo', 'deploy'].includes(name)) name = 'demo';
+      document.querySelectorAll('.tab').forEach(t =>
+        t.classList.toggle('active', t.dataset.tab === name));
+      document.querySelectorAll('.tab-panel').forEach(p =>
+        p.classList.toggle('active', p.id === 'tab-' + name));
+      if (location.hash !== '#' + name) {
+        history.replaceState(null, '', '#' + name);
+      }
+    }
+    document.querySelectorAll('.tab').forEach(t =>
+      t.addEventListener('click', () => activateTab(t.dataset.tab)));
+    window.addEventListener('hashchange', () =>
+      activateTab((location.hash || '#demo').slice(1)));
+    activateTab((location.hash || '#demo').slice(1));
+    const input = $('question');
+    const btn = $('askBtn');
+    const responseEl = $('response');
+    const placeholder = $('placeholder');
+
+    // Active LLM client ribbon
+    fetch('/healthz').then(r => r.json()).then(d => {
+      ribbon.textContent = d.model ? `${d.client} · ${d.model}` : d.client || 'unknown';
+    }).catch(() => { ribbon.textContent = 'offline'; });
+
+    // Context strip from /meta — the factory schematic is hardcoded above
+    // because lines/machines don't change at runtime.
+    fetch('/meta').then(r => r.json()).then(meta => {
+      const w = (ts) => (ts || '').slice(0, 16).replace('T', ' ');
+      $('contextStrip').innerHTML = `
+        <div><span class="label">Topic</span><code>${esc(meta.factory)}</code></div>
+        <div><span class="label">Window</span>${esc(w(meta.window_start))} → ${esc(w(meta.window_end))} UTC</div>
+        <div><span class="label">Rows</span>${meta.n_measurements.toLocaleString()} measurements · ${meta.n_events} events</div>
+        <div><span class="label">Signals</span>${meta.signals.map(s => `<code>${esc(s)}</code>`).join(' ')}</div>
+      `;
+    }).catch(() => {
+      $('contextStrip').innerHTML = '<div><span class="label">Meta unavailable</span></div>';
+    });
+
+    document.querySelectorAll('.chip').forEach(c => {
+      c.addEventListener('click', () => {
+        input.value = c.dataset.q;
+        form.requestSubmit();
+      });
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const q = input.value.trim();
+      if (!q) return;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Thinking';
+      placeholder.hidden = true;
+      const isFirst = responseEl.hidden;
+      responseEl.hidden = false;
+      if (!isFirst) responseEl.classList.add('loading');
+      try {
+        const res = await fetch('/ask', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ question: q }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ detail: res.statusText }));
+          throw new Error(err.detail || res.statusText);
+        }
+        const data = await res.json();
+        renderResponse(data);
+      } catch (err) {
+        $('annotation').textContent = 'Error: ' + err.message;
+        $('chart').removeAttribute('src');
+        $('plan').textContent = '';
+        $('events').innerHTML = '';
+        $('summary').hidden = true;
+      } finally {
+        responseEl.classList.remove('loading');
+        btn.disabled = false;
+        btn.textContent = 'Ask';
+      }
+    });
+
+    function renderResponse(data) {
+      const summary = data.stats && data.stats.summary;
+      const sumEl = $('summary');
+      if (summary) {
+        sumEl.textContent = summary;
+        sumEl.hidden = false;
+      } else {
+        sumEl.hidden = true;
+      }
+      const repairs = (data.plan && data.plan._repairs) || [];
+      const repEl = $('repairs');
+      if (repairs.length) {
+        repEl.innerHTML = '<strong>Plan auto-repaired — the platform layer caught what the LLM missed</strong>' +
+          '<ul>' + repairs.map(r => `<li>${esc(r)}</li>`).join('') + '</ul>';
+        repEl.hidden = false;
+      } else {
+        repEl.hidden = true;
+      }
+      $('annotation').textContent = data.annotation || '';
+      if (data.chart_png) {
+        $('chart').src = 'data:image/png;base64,' + data.chart_png;
+      } else {
+        $('chart').removeAttribute('src');
+      }
+      $('plan').textContent = JSON.stringify(data.plan, null, 2);
+      renderEvents(data.events || []);
+      highlightMachines(data);
+    }
+
+    function highlightMachines(data) {
+      // Drop the previous highlight, then light up every machine the
+      // current response actually touches: per_machine stats first, then
+      // any machine that appears in events. Ties the schematic to the
+      // abstract names live as the audience watches.
+      document.querySelectorAll('.machine').forEach(m => m.classList.remove('focus'));
+      const focus = new Set();
+      (data.stats?.per_machine || []).forEach(r => r.machine_id && focus.add(r.machine_id));
+      (data.events || []).forEach(e => e.machine_id && focus.add(e.machine_id));
+      focus.forEach(name => {
+        const el = document.querySelector(`.machine[data-machine="${name}"]`);
+        if (el) el.classList.add('focus');
+      });
+    }
+
+    function renderEvents(events) {
+      if (events.length === 0) {
+        $('events').innerHTML = '<p class="empty">(none)</p>';
+        return;
+      }
+      const rows = events.map(e =>
+        '<tr>' +
+          `<td>${esc(short(e.timestamp))}</td>` +
+          `<td>${esc(e.machine_id)}</td>` +
+          `<td>${esc(e.severity || '')}</td>` +
+          `<td>${esc(e.code || '')}</td>` +
+          `<td>${esc(e.message || '')}</td>` +
+        '</tr>'
+      ).join('');
+      $('events').innerHTML =
+        '<table><thead><tr>' +
+          '<th>time</th><th>machine</th><th>sev</th><th>code</th><th>message</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table>';
+    }
+
+    function short(ts) { return (ts || '').slice(0, 16).replace('T', ' '); }
+    function esc(s) {
+      return String(s).replace(/[<>&"]/g, c =>
+        ({ '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;' }[c]));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local virtualenv
+.venv/
+
+# Generated data is small and useful to commit — leaving it in.
+# If we ever switch to large files, add: data/*.parquet
+
+# Rendered slides — the canonical version lives at
+# https://bitecloud.dk/presentations/velux-ai. slides.md is the source.
+/slides.html
+/slides_preview.html
+/*.pdf
+/*.pptx
