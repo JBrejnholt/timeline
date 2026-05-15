@@ -327,6 +327,7 @@ MACHINES = {
 # invent "previous week" baselines that don't exist in the data.
 DATA_WINDOW_START = pd.Timestamp("2026-05-18T00:00:00Z")
 DATA_WINDOW_END   = pd.Timestamp("2026-05-21T00:00:00Z")
+_AVAILABLE_DESC   = "Mon 2026-05-18 → Wed 2026-05-20, three days"
 
 
 def make_plan(
@@ -436,6 +437,16 @@ def _repair_plan(question: str, plan: dict) -> dict:
     if new_window is None and re.search(r"\byesterday\b", q):
         new_window = ("2026-05-20T00:00:00Z", "2026-05-21T00:00:00Z")
         label = "yesterday (Wed)"
+    # "today" and "tomorrow" intentionally land outside the data window —
+    # the downstream "no data" path then gives a useful answer instead of
+    # the LLM punting and the events guard surfacing every event in the
+    # full window.
+    if new_window is None and re.search(r"\btoday\b", q):
+        new_window = ("2026-05-21T00:00:00Z", "2026-05-22T00:00:00Z")
+        label = "today (Thu 2026-05-21) — outside data window"
+    if new_window is None and re.search(r"\btomorrow\b", q):
+        new_window = ("2026-05-22T00:00:00Z", "2026-05-23T00:00:00Z")
+        label = "tomorrow (Fri 2026-05-22) — outside data window"
     if new_window is not None:
         tw = plan.get("time_window") or {}
         if tw.get("start") != new_window[0] or tw.get("end") != new_window[1]:
@@ -666,9 +677,16 @@ def annotate(
     The model can still write prose; the truth is always there too.
     """
     if stats.get("n_rows", 0) == 0 or not stats.get("per_machine"):
-        return ("No measurements in the requested window — the model picked a "
-                "time range outside the available data. Try a different "
-                "question or widen the window.")
+        # Be specific: name the requested window and the available window
+        # so the user knows whether the gap is on their side (e.g. asked
+        # about "tomorrow") or the system's.
+        asked = (f"{stats.get('window_start','?')[:10]} → "
+                 f"{stats.get('window_end','?')[:10]}")
+        available = (f"{DATA_WINDOW_START.isoformat()[:10]} → "
+                     f"{DATA_WINDOW_END.isoformat()[:10]}")
+        return (f"No data for the requested window ({asked}). "
+                f"The available data is {available} "
+                f"({_AVAILABLE_DESC}). Try a date inside that range.")
 
     def _has_nan(rows: list[dict]) -> bool:
         for r in rows:
